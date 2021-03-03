@@ -1,0 +1,9 @@
+server:
+  port: "8080"
+db:
+  user: "postgres"
+  host: "localhost"
+  port: "5436"
+  dbname: "postgres"
+  sslmode: "disable"
+  driver_name: "postgres"
