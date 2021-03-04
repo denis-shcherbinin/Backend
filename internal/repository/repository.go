@@ -5,16 +5,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Authorization interface {
-	CreateUser(user domain.User) (int, error)
+type Users interface {
+	Create(user domain.User) (int, error)
 }
 
-type Repository struct {
-	Authorization
+type Repositories struct {
+	Users Users
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{
-		Authorization: NewAuthPostgres(db),
+func NewRepositories(db *sqlx.DB) *Repositories {
+	return &Repositories{
+		Users: NewUsersRepos(db),
 	}
 }

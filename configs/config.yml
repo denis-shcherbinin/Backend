@@ -1,5 +1,9 @@
-server:
+http:
   port: "8080"
+  maxHeaderBytes: 1
+  readTimeout: 10s
+  writeTimeout: 10s
+
 db:
   user: "postgres"
   host: "localhost"
@@ -7,3 +11,7 @@ db:
   dbname: "postgres"
   sslmode: "disable"
   driver_name: "postgres"
+
+auth:
+  accessTokenTTL: 15m
+  refreshTokenTTL: 43200m #30 days

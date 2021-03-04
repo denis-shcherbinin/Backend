@@ -1,20 +1,31 @@
 package service
 
 import (
-	"github.com/PolyProjectOPD/Backend/internal/domain"
 	"github.com/PolyProjectOPD/Backend/internal/repository"
+	"github.com/PolyProjectOPD/Backend/pkg/hash"
 )
 
-type Authorization interface {
-	CreateUser(user domain.User) (int, error)
+type UserSignUpInput struct {
+	Name     string
+	Email    string
+	Password string
 }
 
-type Service struct {
-	Authorization
+type Users interface {
+	SignUp(input UserSignUpInput) (int, error)
 }
 
-func NewService(repos *repository.Repository) *Service {
-	return &Service{
-		Authorization: NewAuthService(repos.Authorization),
+type Services struct {
+	Users Users
+}
+
+type Deps struct {
+	Repos  *repository.Repositories
+	Hasher hash.PasswordHasher
+}
+
+func NewServices(deps Deps) *Services {
+	return &Services{
+		Users: NewUsersService(deps.Repos.Users, deps.Hasher),
 	}
 }
