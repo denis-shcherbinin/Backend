@@ -7,15 +7,16 @@ import (
 )
 
 func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
-	users := api.Group("/users")
+	user := api.Group("/user")
 	{
-		users.POST("/sign-up", h.userSignUp)
+		user.POST("/sign-up", h.userSignUp)
+		user.POST("/sign-in", h.userSignIn)
 	}
 }
 
 type userSignUpInput struct {
-	Name string `json:"name" binding:"required"`
-	Email string `json:"email" binding:"required"`
+	Name     string `json:"name" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -27,8 +28,8 @@ func (h *Handler) userSignUp(c *gin.Context) {
 	}
 
 	id, err := h.services.Users.SignUp(service.UserSignUpInput{
-		Name: input.Name,
-		Email: input.Email,
+		Name:     input.Name,
+		Email:    input.Email,
 		Password: input.Password,
 	})
 	if err != nil {
@@ -36,7 +37,10 @@ func (h *Handler) userSignUp(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{} {
+	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
 	})
+}
+
+func (h *Handler) userSignIn(c *gin.Context) {
 }

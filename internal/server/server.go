@@ -2,21 +2,23 @@ package server
 
 import (
 	"context"
+	"github.com/PolyProjectOPD/Backend/internal/config"
 	"net/http"
-	"time"
 )
 
 type Server struct {
 	httpServer *http.Server
 }
 
-func (s *Server) Run(port string, handler http.Handler) error {
+func (s *Server) Run(cfg *config.Config, handler http.Handler) error {
+	httpConfig := cfg.HTTP
+
 	s.httpServer = &http.Server{
-		Addr:           ":" + port,
+		Addr:           ":" + httpConfig.Port,
 		Handler:        handler,
-		MaxHeaderBytes: 1 << 20, // 1 MB
-		ReadTimeout:    time.Second * 10,
-		WriteTimeout:   time.Second * 10,
+		MaxHeaderBytes: httpConfig.MaxHeaderMegabytes << 20,
+		ReadTimeout:    httpConfig.ReadTimeout,
+		WriteTimeout:   httpConfig.WriteTimeout,
 	}
 
 	return s.httpServer.ListenAndServe()

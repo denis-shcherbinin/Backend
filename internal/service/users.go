@@ -10,10 +10,6 @@ import (
 type UsersService struct {
 	repos  repository.Users
 	hasher hash.PasswordHasher
-
-	/*tokenManager auth.TokenManager
-	accessTokenTTL  time.Duration
-	refreshTokenTTL time.Duration*/
 }
 
 func NewUsersService(repos repository.Users, hasher hash.PasswordHasher) *UsersService {

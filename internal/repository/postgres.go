@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"github.com/PolyProjectOPD/Backend/internal/config"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -9,19 +10,11 @@ const (
 	usersTable = "users"
 )
 
-type Config struct {
-	DriverName string
-	Host       string
-	Port       string
-	User       string
-	Password   string
-	DBName     string
-	SSLMode    string
-}
+func NewPostgresDB(cfg *config.Config) (*sqlx.DB, error) {
 
-func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
-	db, err := sqlx.Connect(cfg.DriverName, fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		cfg.Host, cfg.Port, cfg.User, cfg.DBName, cfg.Password, cfg.SSLMode))
+	dbConfig := cfg.DB
+	db, err := sqlx.Connect(dbConfig.DriverName, fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+		dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Name, dbConfig.Password, dbConfig.SSLMode))
 
 	if err != nil {
 		return nil, err

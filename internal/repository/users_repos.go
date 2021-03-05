@@ -16,7 +16,7 @@ func NewUsersRepos(db *sqlx.DB) *UsersRepos {
 	}
 }
 
-func (u *UsersRepos) Create(user domain.User) (int, error){
+func (u *UsersRepos) Create(user domain.User) (int, error) {
 	var id int
 
 	query := fmt.Sprintf("INSERT INTO %s (name, email, password_hash, registered_at, last_visit_at) values ($1, $2, $3, $4, $5) RETURNING id", usersTable)
