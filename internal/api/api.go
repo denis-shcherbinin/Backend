@@ -4,11 +4,11 @@ import (
 	"github.com/PolyProjectOPD/Backend/internal/config"
 	"github.com/PolyProjectOPD/Backend/internal/delivery/http"
 	"github.com/PolyProjectOPD/Backend/internal/repository"
+	"github.com/PolyProjectOPD/Backend/internal/repository/postgres"
 	"github.com/PolyProjectOPD/Backend/internal/server"
 	"github.com/PolyProjectOPD/Backend/internal/service"
 	"github.com/PolyProjectOPD/Backend/pkg/hash"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 func Run(configPath string) {
@@ -20,7 +20,7 @@ func Run(configPath string) {
 		logrus.Fatalf(err.Error())
 	}
 
-	db, err := repository.NewPostgresDB(cfg)
+	db, err := postgres.NewPostgresDB(cfg.DB)
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
@@ -35,13 +35,7 @@ func Run(configPath string) {
 	handlers := http.NewHandler(services)
 
 	srv := new(server.Server)
-	if err = srv.Run(cfg, handlers.Init()); err != nil {
+	if err = srv.Run(cfg.HTTP, handlers.Init()); err != nil {
 		logrus.Fatalf("error occurred while running http server: %s", err.Error())
 	}
-}
-
-func initConfig() error {
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
 }

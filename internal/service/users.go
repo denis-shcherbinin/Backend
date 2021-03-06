@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/PolyProjectOPD/Backend/internal/domain"
+	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/PolyProjectOPD/Backend/internal/repository"
 	"github.com/PolyProjectOPD/Backend/pkg/hash"
 	"time"
@@ -20,7 +20,7 @@ func NewUsersService(repos repository.Users, hasher hash.PasswordHasher) *UsersS
 }
 
 func (u *UsersService) SignUp(input UserSignUpInput) (int, error) {
-	user := domain.User{
+	user := entity.User{
 		Name:         input.Name,
 		Email:        input.Email,
 		Password:     u.hasher.Hash(input.Password),

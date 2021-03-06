@@ -5,46 +5,14 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
-	"os"
 	"strings"
-	"time"
 )
 
-type (
-	Config struct {
-		DB   DBConfig
-		HTTP HTTPConfig
-		Auth AuthConfig
-	}
-
-	DBConfig struct {
-		Name       string
-		Host       string
-		Port       string
-		User       string
-		SSLMode    string
-		Password   string
-		DriverName string
-	}
-
-	HTTPConfig struct {
-		Port               string
-		ReadTimeout        time.Duration
-		WriteTimeout       time.Duration
-		MaxHeaderMegabytes int
-	}
-
-	AuthConfig struct {
-		JWTConfig    JWTConfig
-		PasswordSalt string
-	}
-
-	JWTConfig struct {
-		SigningKey      string
-		accessTokenTTL  time.Duration
-		refreshTokenTTL time.Duration
-	}
-)
+type Config struct {
+	DB   *DBConfig
+	HTTP *HTTPConfig
+	Auth *AuthConfig
+}
 
 func Init(configPath string) (*Config, error) {
 
@@ -60,28 +28,8 @@ func Init(configPath string) (*Config, error) {
 	}
 
 	return &Config{
-		DB: DBConfig{
-			Name:       viper.GetString("db.name"),
-			Host:       viper.GetString("db.host"),
-			Port:       viper.GetString("db.port"),
-			User:       viper.GetString("db.user"),
-			SSLMode:    viper.GetString("db.sslmode"),
-			Password:   os.Getenv("DB_PASSWORD"),
-			DriverName: viper.GetString("db.driver_name"),
-		},
-		HTTP: HTTPConfig{
-			Port:               viper.GetString("http.port"),
-			ReadTimeout:        viper.GetDuration("read_timeout"),
-			WriteTimeout:       viper.GetDuration("write_timeout"),
-			MaxHeaderMegabytes: viper.GetInt("http.max_header_bytes"),
-		},
-		Auth: AuthConfig{
-			JWTConfig: JWTConfig{
-				SigningKey:      os.Getenv("JWT_SIGNING_KEY"),
-				accessTokenTTL:  viper.GetDuration("access_token_ttl"),
-				refreshTokenTTL: viper.GetDuration("refresh_token_ttl"),
-			},
-			PasswordSalt: os.Getenv("PASSWORD_SALT"),
-		},
+		DB:   dbConfigInit(),
+		HTTP: httpConfigInit(),
+		Auth: authConfigInit(),
 	}, nil
 }

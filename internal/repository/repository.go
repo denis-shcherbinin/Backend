@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"github.com/PolyProjectOPD/Backend/internal/domain"
+	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/jmoiron/sqlx"
 )
 
 type Users interface {
-	Create(user domain.User) (int, error)
+	Create(user entity.User) (int, error)
 }
 
 type Repositories struct {

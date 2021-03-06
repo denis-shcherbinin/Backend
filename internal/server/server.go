@@ -10,15 +10,19 @@ type Server struct {
 	httpServer *http.Server
 }
 
-func (s *Server) Run(cfg *config.Config, handler http.Handler) error {
-	httpConfig := cfg.HTTP
+const (
+	// Necessary shift to translate from megabytes to bytes
+	shift = 20
+)
+
+func (s *Server) Run(cfg *config.HTTPConfig, handler http.Handler) error {
 
 	s.httpServer = &http.Server{
-		Addr:           ":" + httpConfig.Port,
+		Addr:           ":" + cfg.Port,
 		Handler:        handler,
-		MaxHeaderBytes: httpConfig.MaxHeaderMegabytes << 20,
-		ReadTimeout:    httpConfig.ReadTimeout,
-		WriteTimeout:   httpConfig.WriteTimeout,
+		MaxHeaderBytes: cfg.MaxHeaderMegabytes << shift,
+		ReadTimeout:    cfg.ReadTimeout,
+		WriteTimeout:   cfg.WriteTimeout,
 	}
 
 	return s.httpServer.ListenAndServe()

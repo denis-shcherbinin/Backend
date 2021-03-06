@@ -2,7 +2,8 @@ package repository
 
 import (
 	"fmt"
-	"github.com/PolyProjectOPD/Backend/internal/domain"
+	"github.com/PolyProjectOPD/Backend/internal/entity"
+	"github.com/PolyProjectOPD/Backend/internal/repository/postgres"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -16,10 +17,10 @@ func NewUsersRepos(db *sqlx.DB) *UsersRepos {
 	}
 }
 
-func (u *UsersRepos) Create(user domain.User) (int, error) {
+func (u *UsersRepos) Create(user entity.User) (int, error) {
 	var id int
 
-	query := fmt.Sprintf("INSERT INTO %s (name, email, password_hash, registered_at, last_visit_at) values ($1, $2, $3, $4, $5) RETURNING id", usersTable)
+	query := fmt.Sprintf("INSERT INTO %s (name, email, password_hash, registered_at, last_visit_at) values ($1, $2, $3, $4, $5) RETURNING id", postgres.UsersTable)
 	row := u.db.QueryRow(query, user.Name, user.Email, user.Password, user.RegisteredAt, user.LastVisitAt)
 	if err := row.Scan(&id); err != nil {
 		return 0, err
