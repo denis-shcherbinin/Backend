@@ -7,21 +7,23 @@ import (
 )
 
 func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
-	user := api.Group("/user")
+	auth := api.Group("/auth")
 	{
-		user.POST("/sign-up", h.userSignUp)
-		user.POST("/sign-in", h.userSignIn)
+		auth.POST("/sign-up", h.signUp)
+		auth.POST("/sign-in", h.signIn)
+		auth.POST("/refresh", h.refresh)
 	}
 }
 
-type userSignUpInput struct {
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+type signUpInput struct {
+	Name     string `json:"name" binding:"required,min=2,max=64"`
+	Email    string `json:"email" binding:"required,email,max=64"`
+	Password string `json:"password" binding:"required,min=8,max=64"`
 }
 
-func (h *Handler) userSignUp(c *gin.Context) {
-	var input userSignUpInput
+func (h *Handler) signUp(c *gin.Context) {
+	var input signUpInput
+
 	if err := c.BindJSON(&input); err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -37,10 +39,60 @@ func (h *Handler) userSignUp(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
+	c.JSON(http.StatusCreated, map[string]interface{}{
 		"id": id,
 	})
 }
 
-func (h *Handler) userSignIn(c *gin.Context) {
+type signInInput struct {
+	Email    string `json:"email" binding:"required,email,max=64"`
+	Password string `json:"password" binding:"required,min=8,max=64"`
+}
+
+func (h *Handler) signIn(c *gin.Context) {
+	var input signInInput
+
+	if err := c.BindJSON(&input); err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokens, err := h.services.Users.SignIn(service.UserSignInInput{
+		Email:    input.Email,
+		Password: input.Password,
+	})
+
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"accessToken":  tokens.AccessToken,
+		"refreshToken": tokens.RefreshToken,
+	})
+}
+
+type refreshInput struct {
+	Token string `json:"token" binding:"required"`
+}
+
+func (h *Handler) refresh(c *gin.Context) {
+	var input refreshInput
+
+	if err := c.BindJSON(&input); err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokens, err := h.services.Users.RefreshTokens(input.Token)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"accessToken":  tokens.AccessToken,
+		"refreshToken": tokens.RefreshToken,
+	})
 }

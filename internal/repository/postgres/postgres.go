@@ -8,6 +8,7 @@ import (
 
 const (
 	UsersTable = "users"
+	UsersSessionsTable = "users_sessions"
 )
 
 func NewPostgresDB(cfg *config.DBConfig) (*sqlx.DB, error) {

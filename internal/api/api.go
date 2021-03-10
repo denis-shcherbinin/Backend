@@ -7,6 +7,7 @@ import (
 	"github.com/PolyProjectOPD/Backend/internal/repository/postgres"
 	"github.com/PolyProjectOPD/Backend/internal/server"
 	"github.com/PolyProjectOPD/Backend/internal/service"
+	"github.com/PolyProjectOPD/Backend/pkg/auth"
 	"github.com/PolyProjectOPD/Backend/pkg/hash"
 	"github.com/sirupsen/logrus"
 )
@@ -22,15 +23,22 @@ func Run(configPath string) {
 
 	db, err := postgres.NewPostgresDB(cfg.DB)
 	if err != nil {
-		logrus.Fatalf("failed to initialize db: %s", err.Error())
+		logrus.Fatalf("failed to initialize postgres db: %s", err.Error())
 	}
 
 	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
+	tokenManager, err := auth.NewManager(cfg.Auth.JWTConfig.SigningKey)
+	if err != nil {
+		logrus.Fatal("failed to initialize token manager: %s", err.Error())
+	}
 
 	repos := repository.NewRepositories(db)
 	services := service.NewServices(service.Deps{
 		Repos:  repos,
 		Hasher: hasher,
+		TokenManager: tokenManager,
+		AccessTokenTTL: cfg.Auth.JWTConfig.AccessTokenTTL,
+		RefreshTokenTTL: cfg.Auth.JWTConfig.RefreshTokenTTL,
 	})
 	handlers := http.NewHandler(services)
 

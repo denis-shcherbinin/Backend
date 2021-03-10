@@ -5,6 +5,7 @@ import (
 	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/PolyProjectOPD/Backend/internal/repository/postgres"
 	"github.com/jmoiron/sqlx"
+	"time"
 )
 
 type UsersRepos struct {
@@ -26,4 +27,40 @@ func (u *UsersRepos) Create(user entity.User) (int, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func (u *UsersRepos) GetByCredentials(email, password string) (entity.User, error) {
+	var user entity.User
+
+	query := fmt.Sprintf("SELECT id FROM %s WHERE email=$1 AND password_hash=$2", postgres.UsersTable)
+	err := u.db.Get(&user, query, email, password)
+
+	return user, err
+}
+
+func (u *UsersRepos) GetIDByRefreshToken(refreshToken string) (int, error) {
+
+	var userID int
+
+	query := fmt.Sprintf("SELECT user_id FROM %s WHERE refresh_token=$1 AND expires_at > $2", postgres.UsersSessionsTable)
+	err := u.db.Get(&userID, query, refreshToken, time.Now())
+
+	return userID, err
+}
+
+func (u *UsersRepos) CreateSession(id int, session entity.Session) error {
+
+	query := fmt.Sprintf("UPDATE %s SET refresh_token=$1, expires_at=$2 WHERE user_id=$3", postgres.UsersSessionsTable)
+	res, err := u.db.Exec(query, session.RefreshToken, session.ExpiresAt, id)
+	if err != nil {
+		return err
+	}
+
+	n, _ := res.RowsAffected()
+	if n == 0 {
+		query = fmt.Sprintf("INSERT INTO %s (user_id, refresh_token, expires_at) values ($1, $2, $3)", postgres.UsersSessionsTable)
+		_, err = u.db.Exec(query, id, session.RefreshToken, session.ExpiresAt)
+	}
+
+	return err
 }

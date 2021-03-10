@@ -13,5 +13,5 @@ db:
   driver_name: "postgres"
 
 auth:
-  access_token_ttl: 15m
-  refresh_token_ttl: 43200m #30 days
+  access_token_ttl: 900s #15 days
+  refresh_token_ttl: 2592000s #30 days

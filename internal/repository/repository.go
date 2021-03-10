@@ -7,6 +7,10 @@ import (
 
 type Users interface {
 	Create(user entity.User) (int, error)
+	GetByCredentials(email, password string) (entity.User, error)
+	GetIDByRefreshToken(refreshToken string) (int, error)
+
+	CreateSession(id int, session entity.Session) error
 }
 
 type Repositories struct {
