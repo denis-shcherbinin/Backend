@@ -15,16 +15,19 @@ const (
 	shift = 20
 )
 
-func (s *Server) Run(cfg *config.HTTPConfig, handler http.Handler) error {
-
-	s.httpServer = &http.Server{
-		Addr:           ":" + cfg.Port,
-		Handler:        handler,
-		MaxHeaderBytes: cfg.MaxHeaderMegabytes << shift,
-		ReadTimeout:    cfg.ReadTimeout,
-		WriteTimeout:   cfg.WriteTimeout,
+func NewServer(cfg *config.HTTPConfig, handler http.Handler) *Server {
+	return &Server{
+		httpServer: &http.Server{
+			Addr:           ":" + cfg.Port,
+			Handler:        handler,
+			MaxHeaderBytes: cfg.MaxHeaderMegabytes << shift,
+			ReadTimeout:    cfg.ReadTimeout,
+			WriteTimeout:   cfg.WriteTimeout,
+		},
 	}
+}
 
+func (s *Server) Run() error {
 	return s.httpServer.ListenAndServe()
 }
 

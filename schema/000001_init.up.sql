@@ -4,8 +4,7 @@ CREATE TABLE users
     name          varchar(255) not null,
     email         varchar(255) not null unique,
     password_hash varchar(255) not null,
-    registered_at timestamp    not null,
-    last_visit_at timestamp    not null
+    registered_at timestamp    not null
 );
 
 CREATE TABLE users_sessions

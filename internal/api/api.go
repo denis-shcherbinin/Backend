@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"github.com/PolyProjectOPD/Backend/internal/config"
 	"github.com/PolyProjectOPD/Backend/internal/delivery/http"
 	"github.com/PolyProjectOPD/Backend/internal/repository"
@@ -10,6 +11,10 @@ import (
 	"github.com/PolyProjectOPD/Backend/pkg/auth"
 	"github.com/PolyProjectOPD/Backend/pkg/hash"
 	"github.com/sirupsen/logrus"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func Run(configPath string) {
@@ -34,16 +39,38 @@ func Run(configPath string) {
 
 	repos := repository.NewRepositories(db)
 	services := service.NewServices(service.Deps{
-		Repos:  repos,
-		Hasher: hasher,
-		TokenManager: tokenManager,
-		AccessTokenTTL: cfg.Auth.JWTConfig.AccessTokenTTL,
+		Repos:           repos,
+		Hasher:          hasher,
+		TokenManager:    tokenManager,
+		AccessTokenTTL:  cfg.Auth.JWTConfig.AccessTokenTTL,
 		RefreshTokenTTL: cfg.Auth.JWTConfig.RefreshTokenTTL,
 	})
 	handlers := http.NewHandler(services)
 
-	srv := new(server.Server)
-	if err = srv.Run(cfg.HTTP, handlers.Init()); err != nil {
-		logrus.Fatalf("error occurred while running http server: %s", err.Error())
+	srv := server.NewServer(cfg.HTTP, handlers.Init())
+	go func() {
+		if err = srv.Run(); err != nil {
+			logrus.Fatalf("error occurred while running http server: %s", err.Error())
+		}
+	}()
+
+	logrus.Print("Server started")
+
+	// Graceful Shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+
+	<-quit
+
+	const timeout = time.Second * 5
+	ctx, shutdown := context.WithTimeout(context.Background(), timeout)
+	defer shutdown()
+
+	if err = srv.Shutdown(ctx); err != nil {
+		logrus.Errorf("failed to shutdown server: %v", err)
+	}
+
+	if err = db.Close(); err != nil {
+		logrus.Errorf("error occured on db connection close: %s", err.Error())
 	}
 }

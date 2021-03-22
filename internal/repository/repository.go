@@ -11,6 +11,7 @@ type Users interface {
 	GetIDByRefreshToken(refreshToken string) (int, error)
 
 	CreateSession(id int, session entity.Session) error
+	UpdateSession(id int, refreshToken string, session entity.Session) error
 }
 
 type Repositories struct {
