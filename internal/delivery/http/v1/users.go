@@ -22,7 +22,7 @@ type signUpInput struct {
 }
 
 type signUpResponse struct {
-	ID int
+	ID int `json:"id"`
 }
 
 // @Summary User SignUp
