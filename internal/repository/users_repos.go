@@ -56,18 +56,36 @@ func (u *UsersRepos) GetIDByRefreshToken(refreshToken string) (int, error) {
 	return userID, err
 }
 
+// DeleteSessions removes all user sessions from user sessions table with passed user id.
+// It returns an error.
+func (u *UsersRepos) DeleteSessions(id int) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE user_id=$1", postgres.UsersSessionsTable)
+	_, err := u.db.Exec(query, id)
+	return err
+}
+
 // CreateSession adds a new session for the user with the passed id.
+// If the number of existing sessions is exceeded, then all of them are deleted, the last one is saved.
 // It returns an error.
 func (u *UsersRepos) CreateSession(id int, session entity.Session) error {
-	// todo: [SCN-41]: Проверка на допустимое количество сессий, удаление прошлых, сохранение последней
+	var sessionsAmount []int
+	query := fmt.Sprintf("SELECT COUNT(user_id) as amount FROM %s WHERE user_id=$1", postgres.UsersSessionsTable)
+	if err := u.db.Select(&sessionsAmount, query, id); err != nil {
+		return err
+	}
+	if sessionsAmount[0] == postgres.UsersMaxSessionsAmount {
+		if err := u.DeleteSessions(id); err != nil {
+			return err
+		}
+	}
 
-	query := fmt.Sprintf("INSERT INTO %s (user_id, refresh_token, expires_at) values ($1, $2, $3)",
+	query = fmt.Sprintf("INSERT INTO %s (user_id, refresh_token, expires_at) values ($1, $2, $3)",
 		postgres.UsersSessionsTable)
 	_, err := u.db.Exec(query, id, session.RefreshToken, session.ExpiresAt)
 	return err
 }
 
-// UpdateSession updates an existing session for a user with a passed id and refresh token.
+// UpdateSession updates an existing session for a user with the passed refresh token.
 // It returns an error.
 func (u *UsersRepos) UpdateSession(refreshToken string, session entity.Session) error {
 	query := fmt.Sprintf("UPDATE %s SET refresh_token=$1, expires_at=$2 WHERE refresh_token=$3",
