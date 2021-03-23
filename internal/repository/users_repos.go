@@ -65,6 +65,7 @@ func (u *UsersRepos) DeleteSessions(id int) error {
 }
 
 // CreateSession adds a new session for the user with the passed id.
+// If the number of existing sessions is exceeded, then all of them are deleted, the last one is saved.
 // It returns an error.
 func (u *UsersRepos) CreateSession(id int, session entity.Session) error {
 	var sessionsAmount []int
