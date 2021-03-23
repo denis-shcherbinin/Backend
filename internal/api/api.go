@@ -17,6 +17,12 @@ import (
 	"time"
 )
 
+// @title Network API
+// @version 1.0
+// @description API Server for Network OPD Project
+
+// @host localhost:8080
+// @BasePath /api/v1/
 func Run(configPath string) {
 
 	logrus.SetFormatter(new(logrus.JSONFormatter))

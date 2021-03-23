@@ -1,0 +1,171 @@
+basePath: /api/v1/
+definitions:
+  v1.Error:
+    properties:
+      message:
+        type: string
+    type: object
+  v1.refreshInput:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  v1.signInInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  v1.signUpInput:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  v1.signUpResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  v1.tokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Server for Network OPD Project
+  title: Network API
+  version: "1.0"
+paths:
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: User refresh tokens
+      parameters:
+      - description: Refresh tokens info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.refreshInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.tokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Error'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.Error'
+      summary: User Refresh Tokens
+      tags:
+      - User Auth
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: User sign-in
+      parameters:
+      - description: Sign-in info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.signInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.tokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Error'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.Error'
+      summary: User SignIn
+      tags:
+      - User Auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: User sign-up
+      parameters:
+      - description: Sign-up info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.signUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.signUpResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Error'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.Error'
+      summary: User SignUp
+      tags:
+      - User Auth
+swagger: "2.0"
