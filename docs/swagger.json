@@ -1,13 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API Server for Network OPD Project",
-        "title": "Network API",
-        "contact": {},
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/api/v1/",
     "paths": {
         "/auth/refresh": {
             "post": {
@@ -37,31 +32,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.tokenResponse"
+                            "$ref": "#/definitions/v1.tokensResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     }
                 }
@@ -95,31 +90,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.tokenResponse"
+                            "$ref": "#/definitions/v1.tokensResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     }
                 }
@@ -159,25 +154,25 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     }
                 }
@@ -185,14 +180,6 @@
         }
     },
     "definitions": {
-        "v1.Error": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "v1.refreshInput": {
             "type": "object",
             "required": [
@@ -200,6 +187,14 @@
             ],
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.response": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }
@@ -246,7 +241,7 @@
                 }
             }
         },
-        "v1.tokenResponse": {
+        "v1.tokensResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {

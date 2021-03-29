@@ -52,31 +52,31 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.tokenResponse"
+                            "$ref": "#/definitions/v1.tokensResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     }
                 }
@@ -110,31 +110,31 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.tokenResponse"
+                            "$ref": "#/definitions/v1.tokensResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     }
                 }
@@ -174,25 +174,25 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/v1.Error"
+                            "$ref": "#/definitions/v1.response"
                         }
                     }
                 }
@@ -200,14 +200,6 @@ var doc = `{
         }
     },
     "definitions": {
-        "v1.Error": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "v1.refreshInput": {
             "type": "object",
             "required": [
@@ -215,6 +207,14 @@ var doc = `{
             ],
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.response": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }
@@ -261,7 +261,7 @@ var doc = `{
                 }
             }
         },
-        "v1.tokenResponse": {
+        "v1.tokensResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -286,12 +286,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "1.0",
-	Host:        "localhost:8080",
-	BasePath:    "/api/v1/",
+	Version:     "",
+	Host:        "",
+	BasePath:    "",
 	Schemes:     []string{},
-	Title:       "Network API",
-	Description: "API Server for Network OPD Project",
+	Title:       "",
+	Description: "",
 }
 
 type s struct{}

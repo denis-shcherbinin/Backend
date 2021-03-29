@@ -1,16 +1,15 @@
-basePath: /api/v1/
 definitions:
-  v1.Error:
-    properties:
-      message:
-        type: string
-    type: object
   v1.refreshInput:
     properties:
       token:
         type: string
     required:
     - token
+    type: object
+  v1.response:
+    properties:
+      message:
+        type: string
     type: object
   v1.signInInput:
     properties:
@@ -40,19 +39,15 @@ definitions:
       id:
         type: integer
     type: object
-  v1.tokenResponse:
+  v1.tokensResponse:
     properties:
       accessToken:
         type: string
       refreshToken:
         type: string
     type: object
-host: localhost:8080
 info:
   contact: {}
-  description: API Server for Network OPD Project
-  title: Network API
-  version: "1.0"
 paths:
   /auth/refresh:
     post:
@@ -72,23 +67,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/v1.tokenResponse'
+            $ref: '#/definitions/v1.tokensResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         "404":
           description: Bad Request
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
       summary: User Refresh Tokens
       tags:
       - User Auth
@@ -110,23 +105,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/v1.tokenResponse'
+            $ref: '#/definitions/v1.tokensResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         "404":
           description: Bad Request
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
       summary: User SignIn
       tags:
       - User Auth
@@ -152,19 +147,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         "404":
           description: Bad Request
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/v1.Error'
+            $ref: '#/definitions/v1.response'
       summary: User SignUp
       tags:
       - User Auth
