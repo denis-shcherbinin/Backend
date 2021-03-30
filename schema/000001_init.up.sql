@@ -48,7 +48,7 @@ CREATE TABLE "users"
 (
     "id"            SERIAL PRIMARY KEY,
     "first_name"    varchar(256),
-    "second_name"   varchar(256),
+    "last_name"     varchar(256),
     "email"         varchar(256) unique,
     "password_hash" varchar(256),
     "birth_date"    varchar(256),
