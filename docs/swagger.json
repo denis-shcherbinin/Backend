@@ -1,8 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "API Server for Network OPD Project",
+        "title": "Network API",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/api/v1/",
     "paths": {
         "/auth/refresh": {
             "post": {

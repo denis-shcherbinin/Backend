@@ -1,3 +1,4 @@
+basePath: /api/v1/
 definitions:
   v1.refreshInput:
     properties:
@@ -46,8 +47,12 @@ definitions:
       refreshToken:
         type: string
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: API Server for Network OPD Project
+  title: Network API
+  version: "1.0"
 paths:
   /auth/refresh:
     post:
