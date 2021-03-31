@@ -2,6 +2,7 @@ DROP TABLE "users_sessions";
 DROP TABLE "users_spheres";
 DROP TABLE "users_skills";
 DROP TABLE "users_resumes";
+DROP TABLE "users_companies";
 DROP TABLE "users";
 
 DROP TABLE "resumes_spheres";
