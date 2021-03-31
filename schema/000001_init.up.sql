@@ -84,6 +84,13 @@ CREATE TABLE "users_resumes"
     "user_id"   int REFERENCES "users" ("id") on DELETE CASCADE,
     "resume_id" int REFERENCES "resumes" ("id") on DELETE CASCADE
 );
+
+CREATE TABLE "users_companies"
+(
+    "id"         SERIAL PRIMARY KEY,
+    "user_id"    int REFERENCES "users" ("id") on DELETE CASCADE,
+    "company_id" int REFERENCES "companies" ("id") ON DELETE CASCADE
+);
 /**/
 
 /*Vacancies relations*/
