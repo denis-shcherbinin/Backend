@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/PolyProjectOPD/Backend/internal/repository/postgres"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -18,18 +20,41 @@ func NewUsersRepos(db *sqlx.DB) *UsersRepos {
 	}
 }
 
-// Create adds a new user to the users table.
+// Create adds a new user to the users table, fills tables of user spheres and skills.
 // It returns new user id and error.
-func (u *UsersRepos) Create(user entity.User) (int, error) {
-	var id int
+func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill) (int, error) {
+	var userID int
 
-	query := fmt.Sprintf("INSERT INTO %s (name, email, password_hash, registered_at) values ($1, $2, $3, $4) RETURNING id",
+	query := fmt.Sprintf("INSERT INTO %s "+
+		"(first_name, last_name, birth_date, email, password_hash, in_search, registered_at) "+
+		"values ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
 		postgres.UsersTable)
-	row := u.db.QueryRow(query, user.Name, user.Email, user.Password, user.RegisteredAt)
-	if err := row.Scan(&id); err != nil {
-		return 0, err
+
+	row := u.db.QueryRow(query, user.FirstName, user.LastName, user.BirthDate, user.Email, user.Password, user.InSearch, user.RegisteredAt)
+
+	if err := row.Scan(&userID); err != nil {
+		return 0, errors.New("user already exists")
 	}
-	return id, nil
+
+	for _, sphere := range spheres {
+		query = fmt.Sprintf("INSERT INTO %s (user_id, sphere_id) values ($1, $2)", postgres.UsersSpheresTable)
+		_, err := u.db.Exec(query, userID, sphere.ID)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+	}
+
+	for _, skill := range skills {
+		query = fmt.Sprintf("INSERT INTO %s (user_id, skill_id) values ($1, $2)", postgres.UsersSkillsTable)
+		_, err := u.db.Exec(query, userID, skill.ID)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+	}
+
+	return userID, nil
 }
 
 // GetByCredentials looks in the users table for the presence of a user with passed credentials(email, password).
@@ -37,10 +62,22 @@ func (u *UsersRepos) Create(user entity.User) (int, error) {
 func (u *UsersRepos) GetByCredentials(email, password string) (entity.User, error) {
 	var user entity.User
 
-	query := fmt.Sprintf("SELECT id FROM %s WHERE email=$1 AND password_hash=$2", postgres.UsersTable)
-	err := u.db.Get(&user, query, email, password)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1 AND password_hash=$2", postgres.UsersTable)
+	if err := u.db.Get(&user, query, email, password); err != nil {
+		return user, errors.New("invalid email or password")
+	}
 
-	return user, err
+	raw, err := u.db.Query(query, email, password)
+	if err != nil {
+		return user, err
+	}
+	err = raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
+		&user.Email, &user.Password, &user.InSearch, &user.RegisteredAt)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
 }
 
 // GetIDByRefreshToken looks in the user sessions table for the presence of a user with passed refresh token.
@@ -51,9 +88,11 @@ func (u *UsersRepos) GetIDByRefreshToken(refreshToken string) (int, error) {
 
 	query := fmt.Sprintf("SELECT user_id FROM %s WHERE refresh_token=$1 AND expires_at > $2",
 		postgres.UsersSessionsTable)
-	err := u.db.Get(&userID, query, refreshToken, time.Now())
+	if err := u.db.Get(&userID, query, refreshToken, time.Now()); err != nil {
+		return 0, errors.New("invalid refresh token")
+	}
 
-	return userID, err
+	return userID, nil
 }
 
 // DeleteSessions removes all user sessions from user sessions table with passed user id.

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/PolyProjectOPD/Backend/internal/repository"
 	"github.com/PolyProjectOPD/Backend/pkg/auth"
 	"github.com/PolyProjectOPD/Backend/pkg/hash"
@@ -8,14 +9,20 @@ import (
 )
 
 type Users interface {
-	SignUp(input UserSignUpInput) (int, error)
-	SignIn(input UserSignInInput) (Tokens, error)
+	SignUp(input entity.UserSignUpInput) (int, error)
+	SignIn(input entity.UserSignInInput) (Tokens, error)
 
-	RefreshTokens(refreshToken string) (Tokens, error)
+	RefreshTokens(input entity.UserRefreshInput) (Tokens, error)
+}
+
+type Spheres interface {
+	GetAll() ([]entity.Sphere, error)
+	GetSkills(spheres []entity.Sphere) ([]entity.Skill, error)
 }
 
 type Services struct {
-	Users Users
+	Users   Users
+	Spheres Spheres
 }
 
 type Deps struct {
@@ -28,8 +35,10 @@ type Deps struct {
 
 func NewServices(deps Deps) *Services {
 	usersService := NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
+	spheresService := NewSpheresService(deps.Repos.Spheres)
 
 	return &Services{
-		Users: usersService,
+		Users:   usersService,
+		Spheres: spheresService,
 	}
 }

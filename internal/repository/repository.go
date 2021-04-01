@@ -6,7 +6,7 @@ import (
 )
 
 type Users interface {
-	Create(user entity.User) (int, error)
+	Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill) (int, error)
 	GetByCredentials(email, password string) (entity.User, error)
 	GetIDByRefreshToken(refreshToken string) (int, error)
 
@@ -15,12 +15,19 @@ type Users interface {
 	UpdateSession(refreshToken string, session entity.Session) error
 }
 
+type Spheres interface {
+	Get() ([]entity.Sphere, error)
+	GetSkills(sphere entity.Sphere) ([]entity.Skill, error)
+}
+
 type Repositories struct {
-	Users Users
+	Users   Users
+	Spheres Spheres
 }
 
 func NewRepositories(db *sqlx.DB) *Repositories {
 	return &Repositories{
-		Users: NewUsersRepos(db),
+		Users:   NewUsersRepos(db),
+		Spheres: NewSpheresRepos(db),
 	}
 }

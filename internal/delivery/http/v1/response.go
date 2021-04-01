@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -16,6 +17,14 @@ type signUpResponse struct {
 type tokensResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type spheresResponse struct {
+	Spheres []entity.Sphere `json:"spheres"`
+}
+
+type skillsResponse struct {
+	Skills []entity.Skill `json:"skills"`
 }
 
 func newResponse(c *gin.Context, statusCode int, message string) {
