@@ -63,14 +63,13 @@ func (u *UsersRepos) GetByCredentials(email, password string) (entity.User, erro
 	var user entity.User
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1 AND password_hash=$2", postgres.UsersTable)
-	if err := u.db.Get(&user, query, email, password); err != nil {
-		return user, errors.New("invalid email or password")
-	}
 
 	raw, err := u.db.Query(query, email, password)
 	if err != nil {
-		return user, err
+		return user, errors.New("invalid email or password")
 	}
+
+	raw.Next()
 	err = raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
 		&user.Email, &user.Password, &user.InSearch, &user.RegisteredAt)
 	if err != nil {
