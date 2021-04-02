@@ -44,7 +44,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.refreshInput"
+                            "$ref": "#/definitions/entity.UserRefreshInput"
                         }
                     }
                 ],
@@ -102,7 +102,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.signInInput"
+                            "$ref": "#/definitions/entity.UserSignInInput"
                         }
                     }
                 ],
@@ -160,7 +160,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.signUpInput"
+                            "$ref": "#/definitions/entity.UserSignUpInput"
                         }
                     }
                 ],
@@ -197,10 +197,148 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/spheres/all": {
+            "get": {
+                "description": "Get all spheres",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Spheres"
+                ],
+                "summary": "Spheres",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.spheresResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    }
+                }
+            }
+        },
+        "/spheres/skills": {
+            "post": {
+                "description": "Get all skills from sphere",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Spheres"
+                ],
+                "summary": "Spheres",
+                "parameters": [
+                    {
+                        "description": "Spheres input info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.SpheresInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.skillsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "v1.refreshInput": {
+        "entity.Skill": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Sphere": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.SpheresInput": {
+            "type": "object",
+            "required": [
+                "spheres"
+            ],
+            "properties": {
+                "spheres": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Sphere"
+                    }
+                }
+            }
+        },
+        "entity.UserRefreshInput": {
             "type": "object",
             "required": [
                 "token"
@@ -208,6 +346,66 @@ var doc = `{
             "properties": {
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.UserSignInInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.UserSignUpInput": {
+            "type": "object",
+            "required": [
+                "birthDate",
+                "email",
+                "firstName",
+                "inSearch",
+                "lastName",
+                "password",
+                "skills",
+                "spheres"
+            ],
+            "properties": {
+                "birthDate": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "inSearch": {
+                    "type": "boolean"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Skill"
+                    }
+                },
+                "spheres": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Sphere"
+                    }
                 }
             }
         },
@@ -219,45 +417,33 @@ var doc = `{
                 }
             }
         },
-        "v1.signInInput": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "v1.signUpInput": {
-            "type": "object",
-            "required": [
-                "email",
-                "name",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
         "v1.signUpResponse": {
             "type": "object",
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "v1.skillsResponse": {
+            "type": "object",
+            "properties": {
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Skill"
+                    }
+                }
+            }
+        },
+        "v1.spheresResponse": {
+            "type": "object",
+            "properties": {
+                "spheres": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Sphere"
+                    }
                 }
             }
         },

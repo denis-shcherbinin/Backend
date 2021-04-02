@@ -9,17 +9,6 @@ import (
 	"time"
 )
 
-type UserSignUpInput struct {
-	Name     string
-	Email    string
-	Password string
-}
-
-type UserSignInInput struct {
-	Email    string
-	Password string
-}
-
 type Tokens struct {
 	AccessToken  string
 	RefreshToken string
@@ -47,15 +36,21 @@ func NewUsersService(repos repository.Users, hasher hash.PasswordHasher,
 
 // SignUp registers a new user.
 // It returns new user id and error.
-func (u *UsersService) SignUp(input UserSignUpInput) (int, error) {
+func (u *UsersService) SignUp(input entity.UserSignUpInput) (int, error) {
 	user := entity.User{
-		Name:         input.Name,
+		FirstName:    input.FirstName,
+		LastName:     input.LastName,
+		BirthDate:    input.BirthDate,
 		Email:        input.Email,
 		Password:     u.hasher.Hash(input.Password),
 		RegisteredAt: time.Now(),
+		InSearch:     input.InSearch,
 	}
 
-	id, err := u.repos.Create(user)
+	spheres := input.Spheres
+	skills := input.Skills
+
+	id, err := u.repos.Create(user, spheres, skills)
 	if err != nil {
 		return 0, err
 	}
@@ -65,7 +60,7 @@ func (u *UsersService) SignUp(input UserSignUpInput) (int, error) {
 
 // SignIn authenticates the user.
 // It returns tokens(access and refresh) and error.
-func (u *UsersService) SignIn(input UserSignInInput) (Tokens, error) {
+func (u *UsersService) SignIn(input entity.UserSignInInput) (Tokens, error) {
 	user, err := u.repos.GetByCredentials(input.Email, u.hasher.Hash(input.Password))
 
 	if err != nil {
@@ -77,13 +72,13 @@ func (u *UsersService) SignIn(input UserSignInInput) (Tokens, error) {
 
 // RefreshTokens refreshes tokens for a user with passed refresh token.
 // It returns tokens(access and refresh) and error.
-func (u *UsersService) RefreshTokens(refreshToken string) (Tokens, error) {
-	userID, err := u.repos.GetIDByRefreshToken(refreshToken)
+func (u *UsersService) RefreshTokens(input entity.UserRefreshInput) (Tokens, error) {
+	userID, err := u.repos.GetIDByRefreshToken(input.Token)
 	if err != nil {
 		return Tokens{}, err
 	}
 
-	return u.updateSession(userID, refreshToken)
+	return u.updateSession(userID, input.Token)
 }
 
 // generateTokens generates a new pair of tokens.

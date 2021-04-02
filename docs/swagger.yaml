@@ -1,44 +1,100 @@
 basePath: /api/v1/
 definitions:
-  v1.refreshInput:
+  entity.Skill:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  entity.Sphere:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  entity.SpheresInput:
+    properties:
+      spheres:
+        items:
+          $ref: '#/definitions/entity.Sphere'
+        type: array
+    required:
+    - spheres
+    type: object
+  entity.UserRefreshInput:
     properties:
       token:
         type: string
     required:
     - token
     type: object
+  entity.UserSignInInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  entity.UserSignUpInput:
+    properties:
+      birthDate:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      inSearch:
+        type: boolean
+      lastName:
+        type: string
+      password:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/entity.Skill'
+        type: array
+      spheres:
+        items:
+          $ref: '#/definitions/entity.Sphere'
+        type: array
+    required:
+    - birthDate
+    - email
+    - firstName
+    - inSearch
+    - lastName
+    - password
+    - skills
+    - spheres
+    type: object
   v1.response:
     properties:
       message:
         type: string
     type: object
-  v1.signInInput:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  v1.signUpInput:
-    properties:
-      email:
-        type: string
-      name:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - name
-    - password
-    type: object
   v1.signUpResponse:
     properties:
       id:
         type: integer
+    type: object
+  v1.skillsResponse:
+    properties:
+      skills:
+        items:
+          $ref: '#/definitions/entity.Skill'
+        type: array
+    type: object
+  v1.spheresResponse:
+    properties:
+      spheres:
+        items:
+          $ref: '#/definitions/entity.Sphere'
+        type: array
     type: object
   v1.tokensResponse:
     properties:
@@ -65,7 +121,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/v1.refreshInput'
+          $ref: '#/definitions/entity.UserRefreshInput'
       produces:
       - application/json
       responses:
@@ -103,7 +159,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/v1.signInInput'
+          $ref: '#/definitions/entity.UserSignInInput'
       produces:
       - application/json
       responses:
@@ -141,7 +197,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/v1.signUpInput'
+          $ref: '#/definitions/entity.UserSignUpInput'
       produces:
       - application/json
       responses:
@@ -168,4 +224,71 @@ paths:
       summary: User SignUp
       tags:
       - User Auth
+  /spheres/all:
+    get:
+      description: Get all spheres
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.spheresResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: Spheres
+      tags:
+      - Spheres
+  /spheres/skills:
+    post:
+      consumes:
+      - application/json
+      description: Get all skills from sphere
+      parameters:
+      - description: Spheres input info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.SpheresInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.skillsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: Spheres
+      tags:
+      - Spheres
 swagger: "2.0"

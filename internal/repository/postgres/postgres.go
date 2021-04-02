@@ -9,6 +9,11 @@ import (
 const (
 	UsersTable             = "users"
 	UsersSessionsTable     = "users_sessions"
+	UsersSpheresTable      = "users_spheres"
+	UsersSkillsTable       = "users_skills"
+	SkillsTable            = "skills"
+	SpheresTable           = "spheres"
+	SpheresSkillsTable     = "spheres_skills"
 	UsersMaxSessionsAmount = 5
 )
 
