@@ -13,6 +13,7 @@ type Users interface {
 	DeleteSessions(id int) error
 	CreateSession(id int, session entity.Session) error
 	UpdateSession(refreshToken string, session entity.Session) error
+	Existence(email string) bool
 }
 
 type Spheres interface {

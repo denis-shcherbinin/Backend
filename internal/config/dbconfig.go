@@ -13,7 +13,7 @@ const (
 	dbSSLMode    = "db.sslmode"
 	dbDriverName = "db.driver_name"
 
-	dbPassword = "DB_PASSWORD"
+	dbPassword = "POSTGRES_PASSWORD"
 )
 
 type DBConfig struct {

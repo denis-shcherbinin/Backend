@@ -23,6 +23,13 @@ definitions:
     required:
     - spheres
     type: object
+  entity.UserExistenceInput:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
   entity.UserRefreshInput:
     properties:
       token:
@@ -102,6 +109,11 @@ definitions:
         type: string
       refreshToken:
         type: string
+    type: object
+  v1.userExistenceResponse:
+    properties:
+      Exists:
+        type: boolean
     type: object
 host: localhost:8080
 info:
@@ -222,6 +234,36 @@ paths:
           schema:
             $ref: '#/definitions/v1.response'
       summary: User SignUp
+      tags:
+      - User Auth
+  /auth/user-existence:
+    post:
+      consumes:
+      - application/json
+      description: User existence
+      parameters:
+      - description: User existence info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserExistenceInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.userExistenceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: User existence
       tags:
       - User Auth
   /spheres/all:
