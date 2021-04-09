@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  server:
+    restart: always
+    build: ./
+    command: ./network-backend
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    env_file:
+      - .env
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+    - ./.database/postgres/data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+    - 5436:5432

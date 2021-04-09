@@ -70,11 +70,12 @@ func (s *SpheresRepos) GetSkills(sphere entity.Sphere) ([]entity.Skill, error) {
 			logrus.Error(err)
 			continue
 		}
+
+		skillRow.Next()
 		if err = skillRow.Scan(&skill.ID, &skill.Name); err != nil {
 			logrus.Error(err)
 			continue
 		}
-
 		skills = append(skills, skill)
 	}
 

@@ -6,12 +6,12 @@ http:
 
 db:
   name: "postgres"
-  host: "localhost"
-  port: "5436"
+  host: "db"
+  port: "5432"
   user: "postgres"
   sslmode: "disable"
   driver_name: "postgres"
 
 auth:
-  access_token_ttl: 900s #15 days
+  access_token_ttl: 900s #15 minutes
   refresh_token_ttl: 2592000s #30 days

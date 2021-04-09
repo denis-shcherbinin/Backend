@@ -10,6 +10,10 @@ type response struct {
 	Message string `json:"message"`
 }
 
+type userExistenceResponse struct {
+	Exists bool `json:"Exists"`
+}
+
 type signUpResponse struct {
 	ID int `json:"id"`
 }

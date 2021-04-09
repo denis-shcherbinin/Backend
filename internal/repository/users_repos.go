@@ -132,3 +132,15 @@ func (u *UsersRepos) UpdateSession(refreshToken string, session entity.Session) 
 
 	return err
 }
+
+// Existence checks for the existence of a user with passed email.
+// It returns true if user exists otherwise false.
+func (u *UsersRepos) Existence(email string) bool {
+	var amount []int
+	query := fmt.Sprintf("SELECT COUNT(id) FROM %s WHERE email=$1", postgres.UsersTable)
+	if err := u.db.Select(&amount, query, email); err != nil {
+		logrus.Error(err)
+	}
+
+	return amount[0] == 1
+}

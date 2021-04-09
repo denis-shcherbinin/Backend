@@ -1,5 +1,9 @@
 package entity
 
+type UserExistenceInput struct {
+	Email string `json:"email" binding:"required,email,max=64"`
+}
+
 type UserCredentialsInput struct {
 	FirstName string `json:"firstName" binding:"required,min=2,max=64"`
 	LastName  string `json:"lastName" binding:"required,min=2,max=64"`
