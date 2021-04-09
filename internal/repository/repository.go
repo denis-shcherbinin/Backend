@@ -7,12 +7,16 @@ import (
 
 type Users interface {
 	Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill) (int, error)
+
 	GetByCredentials(email, password string) (entity.User, error)
 	GetIDByRefreshToken(refreshToken string) (int, error)
 
-	DeleteSessions(id int) error
+	DeleteAllSessions(id int) error
+	DeleteAllAgentSessions(id int, userAgent string) error
+
 	CreateSession(id int, session entity.Session) error
-	UpdateSession(refreshToken string, session entity.Session) error
+	UpdateSession(id int, refreshToken string, session entity.Session) error
+
 	Existence(email string) bool
 }
 

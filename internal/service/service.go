@@ -9,11 +9,14 @@ import (
 )
 
 type Users interface {
-	Existence(input entity.UserExistenceInput) bool
 	SignUp(input entity.UserSignUpInput) (int, error)
-	SignIn(input entity.UserSignInInput) (Tokens, error)
+	SignIn(input entity.UserSignInInput, userAgent string) (Tokens, error)
+	RefreshTokens(input entity.UserRefreshInput, userAgent string) (Tokens, error)
 
-	RefreshTokens(input entity.UserRefreshInput) (Tokens, error)
+	Logout(userID int) error
+	SignOut(userID int, userAgent string) error
+
+	Existence(input entity.UserExistenceInput) bool
 }
 
 type Spheres interface {

@@ -106,6 +106,7 @@ CREATE TABLE "users_sessions"
 (
     "id"            SERIAL PRIMARY KEY,
     "user_id"       int REFERENCES "users" ("id") on DELETE CASCADE,
+    "user_agent"    varchar(256) NOT NULL,
     "refresh_token" varchar(256),
     "expires_at"    timestamp
 );

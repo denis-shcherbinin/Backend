@@ -34,12 +34,6 @@ func NewUsersService(repos repository.Users, hasher hash.PasswordHasher,
 	}
 }
 
-// Existence checks for the existence of a user with passed email.
-// It returns true if user exists otherwise false.
-func (u *UsersService) Existence(input entity.UserExistenceInput) bool {
-	return u.repos.Existence(input.Email)
-}
-
 // SignUp registers a new user.
 // It returns new user id and error.
 func (u *UsersService) SignUp(input entity.UserSignUpInput) (int, error) {
@@ -66,25 +60,43 @@ func (u *UsersService) SignUp(input entity.UserSignUpInput) (int, error) {
 
 // SignIn authenticates the user.
 // It returns tokens(access and refresh) and error.
-func (u *UsersService) SignIn(input entity.UserSignInInput) (Tokens, error) {
+func (u *UsersService) SignIn(input entity.UserSignInInput, userAgent string) (Tokens, error) {
 	user, err := u.repos.GetByCredentials(input.Email, u.hasher.Hash(input.Password))
 
 	if err != nil {
 		return Tokens{}, err
 	}
 
-	return u.createSession(user.ID)
+	return u.createSession(user.ID, userAgent)
 }
 
 // RefreshTokens refreshes tokens for a user with passed refresh token.
 // It returns tokens(access and refresh) and error.
-func (u *UsersService) RefreshTokens(input entity.UserRefreshInput) (Tokens, error) {
+func (u *UsersService) RefreshTokens(input entity.UserRefreshInput, userAgent string) (Tokens, error) {
 	userID, err := u.repos.GetIDByRefreshToken(input.Token)
 	if err != nil {
 		return Tokens{}, err
 	}
 
-	return u.updateSession(userID, input.Token)
+	return u.updateSession(userID, userAgent, input.Token)
+}
+
+// Logout deletes all active sessions the user with passer id.
+// It returns an error.
+func (u *UsersService) Logout(userID int) error {
+	return u.repos.DeleteAllSessions(userID)
+}
+
+// SignOut deletes all sessions with passed userID and userAgent.
+// It return an error.
+func (u *UsersService) SignOut(userID int, userAgent string) error {
+	return u.repos.DeleteAllAgentSessions(userID, userAgent)
+}
+
+// Existence checks for the existence of a user with passed email.
+// It returns true if user exists otherwise false.
+func (u *UsersService) Existence(input entity.UserExistenceInput) bool {
+	return u.repos.Existence(input.Email)
 }
 
 // generateTokens generates a new pair of tokens.
@@ -105,9 +117,9 @@ func (u *UsersService) generateTokens(id int) (Tokens, error) {
 	return tokens, err
 }
 
-// createSession creates a new session for the user with passed id.
+// createSession creates a new session for the user with passed id and userAgent.
 // It returns tokens(access and refresh) and error.
-func (u *UsersService) createSession(id int) (Tokens, error) {
+func (u *UsersService) createSession(id int, userAgent string) (Tokens, error) {
 	var (
 		tokens Tokens
 		err    error
@@ -119,6 +131,7 @@ func (u *UsersService) createSession(id int) (Tokens, error) {
 	}
 
 	err = u.repos.CreateSession(id, entity.Session{
+		UserAgent:    userAgent,
 		RefreshToken: tokens.RefreshToken,
 		ExpiresAt:    time.Now().Add(u.refreshTokenTTL),
 	})
@@ -128,7 +141,7 @@ func (u *UsersService) createSession(id int) (Tokens, error) {
 
 // updateSession updates an existing user session with the passed id and refresh token.
 // It returns tokens(access and refresh) and error.
-func (u *UsersService) updateSession(id int, refreshToken string) (Tokens, error) {
+func (u *UsersService) updateSession(id int, userAgent string, refreshToken string) (Tokens, error) {
 	var (
 		tokens Tokens
 		err    error
@@ -139,7 +152,8 @@ func (u *UsersService) updateSession(id int, refreshToken string) (Tokens, error
 		return tokens, err
 	}
 
-	err = u.repos.UpdateSession(refreshToken, entity.Session{
+	err = u.repos.UpdateSession(id, refreshToken, entity.Session{
+		UserAgent:    userAgent,
 		RefreshToken: tokens.RefreshToken,
 		ExpiresAt:    time.Now().Add(u.refreshTokenTTL),
 	})

@@ -122,150 +122,6 @@ info:
   title: Network API
   version: "1.0"
 paths:
-  /auth/refresh:
-    post:
-      consumes:
-      - application/json
-      description: User refresh tokens
-      parameters:
-      - description: Refresh tokens info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/entity.UserRefreshInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.tokensResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.response'
-        "404":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.response'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/v1.response'
-      summary: User Refresh Tokens
-      tags:
-      - User Auth
-  /auth/sign-in:
-    post:
-      consumes:
-      - application/json
-      description: User sign-in
-      parameters:
-      - description: Sign-in info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/entity.UserSignInInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.tokensResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.response'
-        "404":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.response'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/v1.response'
-      summary: User SignIn
-      tags:
-      - User Auth
-  /auth/sign-up:
-    post:
-      consumes:
-      - application/json
-      description: User sign-up
-      parameters:
-      - description: Sign-up info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/entity.UserSignUpInput'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/v1.signUpResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.response'
-        "404":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.response'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/v1.response'
-      summary: User SignUp
-      tags:
-      - User Auth
-  /auth/user-existence:
-    post:
-      consumes:
-      - application/json
-      description: User existence
-      parameters:
-      - description: User existence info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/entity.UserExistenceInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.userExistenceResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.response'
-        "404":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.response'
-      summary: User existence
-      tags:
-      - User Auth
   /spheres/all:
     get:
       description: Get all spheres
@@ -333,4 +189,219 @@ paths:
       summary: Spheres
       tags:
       - Spheres
+  /user/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: User refresh tokens
+      parameters:
+      - description: Refresh tokens info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserRefreshInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.tokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: User Refresh Tokens
+      tags:
+      - User auth
+  /user/auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: User sign-in
+      parameters:
+      - description: Sign-in info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserSignInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.tokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: User SignIn
+      tags:
+      - User auth
+  /user/auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: User sign-up
+      parameters:
+      - description: Sign-up info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserSignUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.signUpResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: User SignUp
+      tags:
+      - User auth
+  /user/existence:
+    post:
+      consumes:
+      - application/json
+      description: User existence
+      parameters:
+      - description: User existence info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserExistenceInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.userExistenceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: User existence
+      tags:
+      - User
+  /user/logout:
+    get:
+      consumes:
+      - application/json
+      description: user sign out from all devices
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: User logout
+      tags:
+      - User
+  /user/sign-out:
+    get:
+      consumes:
+      - application/json
+      description: user sign out from current device
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: User signOut
+      tags:
+      - User
+securityDefinitions:
+  UserAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

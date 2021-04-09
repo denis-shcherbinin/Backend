@@ -23,6 +23,10 @@ import (
 
 // @host localhost:8080
 // @BasePath /api/v1/
+
+// @securityDefinitions.apikey UserAuth
+// @in header
+// @name Authorization
 func Run(configPath string) {
 
 	logrus.SetFormatter(new(logrus.JSONFormatter))
@@ -51,7 +55,7 @@ func Run(configPath string) {
 		AccessTokenTTL:  cfg.Auth.JWTConfig.AccessTokenTTL,
 		RefreshTokenTTL: cfg.Auth.JWTConfig.RefreshTokenTTL,
 	})
-	handlers := http.NewHandler(services)
+	handlers := http.NewHandler(services, tokenManager)
 
 	srv := server.NewServer(cfg.HTTP, handlers.Init())
 	go func() {
