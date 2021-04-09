@@ -16,8 +16,8 @@ type Users interface {
 
 	CreateSession(id int, session entity.Session) error
 	UpdateSession(id int, refreshToken string, session entity.Session) error
-
-	Existence(email string) bool
+	
+  Existence(email string) bool
 }
 
 type Spheres interface {

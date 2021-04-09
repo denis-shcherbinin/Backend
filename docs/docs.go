@@ -310,6 +310,49 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
+                    "User Auth"
+                ],
+                "summary": "User existence",
+                "parameters": [
+                    {
+                        "description": "User existence info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.UserExistenceInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.userExistenceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    }
+                }
+            }
+        },
+        "/spheres/all": {
+            "get": {
+                "description": "Get all spheres",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
                     "User"
                 ],
                 "summary": "User existence",

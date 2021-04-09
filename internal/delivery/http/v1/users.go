@@ -26,6 +26,28 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 	}
 }
 
+// @Summary User existence
+// @Tags User Auth
+// @Description User existence
+// @Accept  json
+// @Produce  json
+// @Param input body entity.UserExistenceInput true "User existence info"
+// @Success 200 {object} userExistenceResponse
+// @Failure 400,404 {object} response
+// @Router /auth/user-existence [post]
+func (h *Handler) isUserExists(c *gin.Context) {
+	var input entity.UserExistenceInput
+
+	if err := c.BindJSON(&input); err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, userExistenceResponse{
+		Exists: h.services.Users.Existence(input),
+	})
+}
+
 // @Summary User SignUp
 // @Tags User auth
 // @Description User sign-up

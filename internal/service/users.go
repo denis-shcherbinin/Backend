@@ -34,6 +34,12 @@ func NewUsersService(repos repository.Users, hasher hash.PasswordHasher,
 	}
 }
 
+// Existence checks for the existence of a user with passed email.
+// It returns true if user exists otherwise false.
+func (u *UsersService) Existence(input entity.UserExistenceInput) bool {
+	return u.repos.Existence(input.Email)
+}
+
 // SignUp registers a new user.
 // It returns new user id and error.
 func (u *UsersService) SignUp(input entity.UserSignUpInput) (int, error) {

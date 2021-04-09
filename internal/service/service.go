@@ -9,6 +9,7 @@ import (
 )
 
 type Users interface {
+	Existence(input entity.UserExistenceInput) bool
 	SignUp(input entity.UserSignUpInput) (int, error)
 	SignIn(input entity.UserSignInInput, userAgent string) (Tokens, error)
 	RefreshTokens(input entity.UserRefreshInput, userAgent string) (Tokens, error)
