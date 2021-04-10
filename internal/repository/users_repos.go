@@ -96,9 +96,15 @@ func (u *UsersRepos) GetIDByRefreshToken(refreshToken string) (int, error) {
 
 // DeleteSessions removes all user sessions from user sessions table with passed user id.
 // It returns an error.
-func (u *UsersRepos) DeleteSessions(id int) error {
+func (u *UsersRepos) DeleteAllSessions(id int) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE user_id=$1", postgres.UsersSessionsTable)
 	_, err := u.db.Exec(query, id)
+	return err
+}
+
+func (u *UsersRepos) DeleteAllAgentSessions(id int, userAgent string) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE user_id=$1 AND user_agent=$2", postgres.UsersSessionsTable)
+	_, err := u.db.Exec(query, id, userAgent)
 	return err
 }
 
@@ -107,28 +113,28 @@ func (u *UsersRepos) DeleteSessions(id int) error {
 // It returns an error.
 func (u *UsersRepos) CreateSession(id int, session entity.Session) error {
 	var sessionsAmount []int
-	query := fmt.Sprintf("SELECT COUNT(user_id) as amount FROM %s WHERE user_id=$1", postgres.UsersSessionsTable)
-	if err := u.db.Select(&sessionsAmount, query, id); err != nil {
+	query := fmt.Sprintf("SELECT COUNT(user_id) as amount FROM %s WHERE user_id=$1 AND user_agent=$2", postgres.UsersSessionsTable)
+	if err := u.db.Select(&sessionsAmount, query, id, session.UserAgent); err != nil {
 		return err
 	}
 	if sessionsAmount[0] == postgres.UsersMaxSessionsAmount {
-		if err := u.DeleteSessions(id); err != nil {
+		if err := u.DeleteAllAgentSessions(id, session.UserAgent); err != nil {
 			return err
 		}
 	}
 
-	query = fmt.Sprintf("INSERT INTO %s (user_id, refresh_token, expires_at) values ($1, $2, $3)",
+	query = fmt.Sprintf("INSERT INTO %s (user_id, user_agent, refresh_token, expires_at) values ($1, $2, $3, $4)",
 		postgres.UsersSessionsTable)
-	_, err := u.db.Exec(query, id, session.RefreshToken, session.ExpiresAt)
+	_, err := u.db.Exec(query, id, session.UserAgent, session.RefreshToken, session.ExpiresAt)
 	return err
 }
 
 // UpdateSession updates an existing session for a user with the passed refresh token.
 // It returns an error.
-func (u *UsersRepos) UpdateSession(refreshToken string, session entity.Session) error {
-	query := fmt.Sprintf("UPDATE %s SET refresh_token=$1, expires_at=$2 WHERE refresh_token=$3",
+func (u *UsersRepos) UpdateSession(id int, refreshToken string, session entity.Session) error {
+	query := fmt.Sprintf("UPDATE %s SET refresh_token=$1, expires_at=$2 WHERE user_id=$3 AND user_agent=$4 AND refresh_token=$5",
 		postgres.UsersSessionsTable)
-	_, err := u.db.Exec(query, session.RefreshToken, session.ExpiresAt, refreshToken)
+	_, err := u.db.Exec(query, session.RefreshToken, session.ExpiresAt, id, session.UserAgent, refreshToken)
 
 	return err
 }
