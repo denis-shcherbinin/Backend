@@ -257,10 +257,23 @@ var doc = `{
                 "summary": "User SignUp",
                 "parameters": [
                     {
-                        "description": "Sign-up info",
-                        "name": "input",
+                        "type": "file",
+                        "description": "Image [jpeg/png]",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Look at the userStringTemplate or entity.UserSignUpInput in models",
+                        "name": "user",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "description": "User sign-up template",
+                        "name": "userStringTemplate",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/entity.UserSignUpInput"
                         }

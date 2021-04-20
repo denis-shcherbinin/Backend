@@ -32,14 +32,16 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 // @ModuleID signUp
 // @Accept mpfd
 // @Produce json
-// @Param input body entity.UserSignUpInput true "Sign-up info"
+// @Param file formData file true "Image [jpeg/png]"
+// @Param user formData string true "Look at the userStringTemplate or entity.UserSignUpInput in Models"
+// @Param userStringTemplate body entity.UserSignUpInput false "User sign-up template"
 // @Success 201 {object} signUpResponse
 // @Failure 400,404 {object} response
 // @Failure 500 {object} response
 // @Failure default {object} response
 // @Router /user/auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
-	// Image Upload
+	// Image parsing
 	fileBody, fileType, err := h.getImageFromMultipartFormData(c)
 	if err != nil {
 		if err.Error() != "http: no such file" {

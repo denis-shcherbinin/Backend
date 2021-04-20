@@ -273,10 +273,19 @@ paths:
       - multipart/form-data
       description: User sign-up
       parameters:
-      - description: Sign-up info
-        in: body
-        name: input
+      - description: Image [jpeg/png]
+        in: formData
+        name: file
         required: true
+        type: file
+      - description: Look at the userStringTemplate or entity.UserSignUpInput in models
+        in: formData
+        name: user
+        required: true
+        type: string
+      - description: User sign-up template
+        in: body
+        name: userStringTemplate
         schema:
           $ref: '#/definitions/entity.UserSignUpInput'
       produces:
