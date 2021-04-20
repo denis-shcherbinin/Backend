@@ -99,7 +99,8 @@ CREATE TABLE "users"
     "email"         varchar(256) unique,
     "password_hash" varchar(256),
     "in_search"     boolean,
-    "registered_at" timestamp
+    "registered_at" timestamp,
+    "image_url"         varchar(256)
 );
 
 CREATE TABLE "users_sessions"

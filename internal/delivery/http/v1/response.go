@@ -15,7 +15,8 @@ type userExistenceResponse struct {
 }
 
 type signUpResponse struct {
-	ID int `json:"id"`
+	ID       int    `json:"id"`
+	ImageURL string `json:"imageURL"`
 }
 
 type tokensResponse struct {

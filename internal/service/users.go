@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/PolyProjectOPD/Backend/internal/repository"
+	"github.com/PolyProjectOPD/Backend/internal/storage"
 	"github.com/PolyProjectOPD/Backend/pkg/auth"
 	"github.com/PolyProjectOPD/Backend/pkg/hash"
 	"strconv"
@@ -16,6 +17,7 @@ type Tokens struct {
 
 type UsersService struct {
 	repos        repository.Users
+	storage      *storage.Storage
 	hasher       hash.PasswordHasher
 	tokenManager auth.TokenManager
 
@@ -23,10 +25,11 @@ type UsersService struct {
 	refreshTokenTTL time.Duration
 }
 
-func NewUsersService(repos repository.Users, hasher hash.PasswordHasher,
+func NewUsersService(repos repository.Users, storage *storage.Storage, hasher hash.PasswordHasher,
 	tokenManager auth.TokenManager, accessTokenTTL, refreshTokenTTL time.Duration) *UsersService {
 	return &UsersService{
 		repos:           repos,
+		storage:         storage,
 		hasher:          hasher,
 		tokenManager:    tokenManager,
 		accessTokenTTL:  accessTokenTTL,
@@ -34,9 +37,9 @@ func NewUsersService(repos repository.Users, hasher hash.PasswordHasher,
 	}
 }
 
-// SignUp registers a new user.
+// SignUp registers a new user and upload his image.
 // It returns new user id and error.
-func (u *UsersService) SignUp(input entity.UserSignUpInput) (int, error) {
+func (u *UsersService) SignUp(input entity.UserSignUpInput, fileBody, fileType string) (int, string, error) {
 	user := entity.User{
 		FirstName:    input.FirstName,
 		LastName:     input.LastName,
@@ -50,12 +53,27 @@ func (u *UsersService) SignUp(input entity.UserSignUpInput) (int, error) {
 	spheres := input.Spheres
 	skills := input.Skills
 
-	id, err := u.repos.Create(user, spheres, skills)
-	if err != nil {
-		return 0, err
+	var (
+		imageURL string
+		err error
+	)
+
+	if len(fileBody) != 0 && len(fileType) != 0 {
+		imageURL, err = u.storage.Upload(storage.UploadInput{
+			Body:        fileBody,
+			ContentType: fileType,
+		})
+		if err != nil {
+			return 0, "", err
+		}
 	}
 
-	return id, nil
+	id, err := u.repos.Create(user, spheres, skills, imageURL)
+	if err != nil {
+		return 0, "", err
+	}
+
+	return id, imageURL, nil
 }
 
 // SignIn authenticates the user.

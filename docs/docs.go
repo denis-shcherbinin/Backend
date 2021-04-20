@@ -246,7 +246,7 @@ var doc = `{
             "post": {
                 "description": "User sign-up",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -583,6 +583,9 @@ var doc = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                },
+                "imageURL": {
+                    "type": "string"
                 }
             }
         },

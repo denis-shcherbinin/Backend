@@ -231,7 +231,7 @@
             "post": {
                 "description": "User sign-up",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -568,6 +568,9 @@
             "properties": {
                 "id": {
                     "type": "integer"
+                },
+                "imageURL": {
+                    "type": "string"
                 }
             }
         },

@@ -6,7 +6,7 @@ import (
 )
 
 type Users interface {
-	Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill) (int, error)
+	Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill, imageURL string) (int, error)
 
 	GetByCredentials(email, password string) (entity.User, error)
 	GetIDByRefreshToken(refreshToken string) (int, error)

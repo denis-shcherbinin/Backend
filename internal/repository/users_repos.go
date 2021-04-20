@@ -22,22 +22,22 @@ func NewUsersRepos(db *sqlx.DB) *UsersRepos {
 
 // Create adds a new user to the users table, fills tables of user spheres and skills.
 // It returns new user id and error.
-func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill) (int, error) {
+func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill, imageURL string) (int, error) {
 	var userID int
 
 	query := fmt.Sprintf("INSERT INTO %s "+
-		"(first_name, last_name, birth_date, email, password_hash, in_search, registered_at) "+
-		"values ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+		"(first_name, last_name, birth_date, email, password_hash, in_search, registered_at, image_url) "+
+		"values ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
 		postgres.UsersTable)
 
-	row := u.db.QueryRow(query, user.FirstName, user.LastName, user.BirthDate, user.Email, user.Password, user.InSearch, user.RegisteredAt)
+	row := u.db.QueryRow(query, user.FirstName, user.LastName, user.BirthDate, user.Email, user.Password, user.InSearch, user.RegisteredAt, imageURL)
 
 	if err := row.Scan(&userID); err != nil {
 		return 0, errors.New("user already exists")
 	}
 
 	for _, sphere := range spheres {
-		query = fmt.Sprintf("INSERT INTO %s (user_id, sphere_id) values ($1, $2)", postgres.UsersSpheresTable)
+		query = fmt.Sprintf("INSERT INTO %s (user_id, sphere_id) VALUES ($1, $2)", postgres.UsersSpheresTable)
 		_, err := u.db.Exec(query, userID, sphere.ID)
 		if err != nil {
 			logrus.Error(err)
@@ -46,7 +46,7 @@ func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []
 	}
 
 	for _, skill := range skills {
-		query = fmt.Sprintf("INSERT INTO %s (user_id, skill_id) values ($1, $2)", postgres.UsersSkillsTable)
+		query = fmt.Sprintf("INSERT INTO %s (user_id, skill_id) VALUES ($1, $2)", postgres.UsersSkillsTable)
 		_, err := u.db.Exec(query, userID, skill.ID)
 		if err != nil {
 			logrus.Error(err)
@@ -94,14 +94,16 @@ func (u *UsersRepos) GetIDByRefreshToken(refreshToken string) (int, error) {
 	return userID, nil
 }
 
-// DeleteSessions removes all user sessions from user sessions table with passed user id.
-// It returns an error.
+// DeleteAllSessions removes all user sessions from user sessions table with passed user id.
+// It returns the error.
 func (u *UsersRepos) DeleteAllSessions(id int) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE user_id=$1", postgres.UsersSessionsTable)
 	_, err := u.db.Exec(query, id)
 	return err
 }
 
+// DeleteAllAgentSessions removes all user sessions from users sessions table with passed user-agent.
+// It returns the error.
 func (u *UsersRepos) DeleteAllAgentSessions(id int, userAgent string) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE user_id=$1 AND user_agent=$2", postgres.UsersSessionsTable)
 	_, err := u.db.Exec(query, id, userAgent)
@@ -110,7 +112,7 @@ func (u *UsersRepos) DeleteAllAgentSessions(id int, userAgent string) error {
 
 // CreateSession adds a new session for the user with the passed id.
 // If the number of existing sessions is exceeded, then all of them are deleted, the last one is saved.
-// It returns an error.
+// It returns the error.
 func (u *UsersRepos) CreateSession(id int, session entity.Session) error {
 	var sessionsAmount []int
 	query := fmt.Sprintf("SELECT COUNT(user_id) as amount FROM %s WHERE user_id=$1 AND user_agent=$2", postgres.UsersSessionsTable)
@@ -123,14 +125,14 @@ func (u *UsersRepos) CreateSession(id int, session entity.Session) error {
 		}
 	}
 
-	query = fmt.Sprintf("INSERT INTO %s (user_id, user_agent, refresh_token, expires_at) values ($1, $2, $3, $4)",
+	query = fmt.Sprintf("INSERT INTO %s (user_id, user_agent, refresh_token, expires_at) VALUES ($1, $2, $3, $4)",
 		postgres.UsersSessionsTable)
 	_, err := u.db.Exec(query, id, session.UserAgent, session.RefreshToken, session.ExpiresAt)
 	return err
 }
 
 // UpdateSession updates an existing session for a user with the passed refresh token.
-// It returns an error.
+// It returns the error.
 func (u *UsersRepos) UpdateSession(id int, refreshToken string, session entity.Session) error {
 	query := fmt.Sprintf("UPDATE %s SET refresh_token=$1, expires_at=$2 WHERE user_id=$3 AND user_agent=$4 AND refresh_token=$5",
 		postgres.UsersSessionsTable)

@@ -30,7 +30,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 // @Tags User auth
 // @Description User sign-up
 // @ModuleID signUp
-// @Accept json
+// @Accept mpfd
 // @Produce json
 // @Param input body entity.UserSignUpInput true "Sign-up info"
 // @Success 201 {object} signUpResponse
@@ -39,21 +39,30 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 // @Failure default {object} response
 // @Router /user/auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
-	var input entity.UserSignUpInput
+	// Image Upload
+	fileBody, fileType, err := h.getImageFromMultipartFormData(c)
+	if err != nil {
+		if err.Error() != "http: no such file" {
+			newResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
+	}
 
-	if err := c.BindJSON(&input); err != nil {
+	signUpInput, err := h.getUserSignUpInputFromMultipartFormData(c)
+	if err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.Users.SignUp(input)
+	id, imageURL, err := h.services.Users.SignUp(signUpInput, fileBody, fileType)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.JSON(http.StatusCreated, signUpResponse{
-		ID: id,
+		ID:       id,
+		ImageURL: imageURL,
 	})
 }
 

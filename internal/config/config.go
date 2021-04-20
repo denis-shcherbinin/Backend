@@ -12,6 +12,7 @@ type Config struct {
 	DB   *DBConfig
 	HTTP *HTTPConfig
 	Auth *AuthConfig
+	Storage *StorageConfig
 }
 
 func Init(configPath string) (*Config, error) {
@@ -31,5 +32,6 @@ func Init(configPath string) (*Config, error) {
 		DB:   dbConfigInit(),
 		HTTP: httpConfigInit(),
 		Auth: authConfigInit(),
+		Storage: storageConfigInit(),
 	}, nil
 }

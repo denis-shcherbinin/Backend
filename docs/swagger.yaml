@@ -88,6 +88,8 @@ definitions:
     properties:
       id:
         type: integer
+      imageURL:
+        type: string
     type: object
   v1.skillsResponse:
     properties:
@@ -268,7 +270,7 @@ paths:
   /user/auth/sign-up:
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: User sign-up
       parameters:
       - description: Sign-up info
