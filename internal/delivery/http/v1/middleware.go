@@ -13,7 +13,6 @@ import (
 const (
 	authorizationHeader = "Authorization"
 	userCtx             = "userID"
-	maxImageUploadSize  = 5 << 20 // 5 megabytes
 )
 
 var imageTypes = map[string]struct{}{
@@ -73,9 +72,6 @@ func (h *Handler) getUserAgent(c *gin.Context) (string, error) {
 }
 
 func (h *Handler) getImageFromMultipartFormData(c *gin.Context) (string, string, error) {
-	// Limit Upload File Size
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxImageUploadSize)
-
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
 		return "", "", err
