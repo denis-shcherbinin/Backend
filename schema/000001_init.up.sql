@@ -100,7 +100,7 @@ CREATE TABLE "users"
     "password_hash" varchar(256),
     "in_search"     boolean,
     "registered_at" timestamp,
-    "image_url"         varchar(256)
+    "image_url"     varchar(256)
 );
 
 CREATE TABLE "users_sessions"
