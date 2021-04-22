@@ -99,6 +99,12 @@ func (u *UsersService) RefreshTokens(input entity.UserRefreshInput, userAgent st
 	return u.updateSession(userID, userAgent, input.Token)
 }
 
+func (u *UsersService) Profile(userID int) error {
+	return nil
+
+	// собираем профиль, обращаясь к repository(user)
+}
+
 // Logout deletes all active sessions the user with passer id.
 // It returns an error.
 func (u *UsersService) Logout(userID int) error {

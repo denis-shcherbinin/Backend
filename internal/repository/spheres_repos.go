@@ -18,9 +18,9 @@ func NewSpheresRepos(db *sqlx.DB) *SpheresRepos {
 	}
 }
 
-// Get forms a slice of all spheres from DB.
+// GetAll forms a slice of all spheres from DB.
 // It returns all spheres and error.
-func (s *SpheresRepos) Get() ([]entity.Sphere, error) {
+func (s *SpheresRepos) GetAll() ([]entity.Sphere, error) {
 	var spheres []entity.Sphere
 
 	query := fmt.Sprintf("SELECT * FROM %s", postgres.SpheresTable)
@@ -41,7 +41,7 @@ func (s *SpheresRepos) Get() ([]entity.Sphere, error) {
 		spheres = append(spheres, sphere)
 	}
 
-	return spheres, err
+	return spheres, nil
 }
 
 // GetSkills forms a slice of all skills according to the passed sphere.

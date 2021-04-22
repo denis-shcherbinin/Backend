@@ -21,18 +21,24 @@ type Users interface {
 }
 
 type Spheres interface {
-	Get() ([]entity.Sphere, error)
+	GetAll() ([]entity.Sphere, error)
 	GetSkills(sphere entity.Sphere) ([]entity.Skill, error)
+}
+
+type Skills interface {
+	GetAll() ([]entity.Skill, error)
 }
 
 type Repositories struct {
 	Users   Users
 	Spheres Spheres
+	Skills  Skills
 }
 
 func NewRepositories(db *sqlx.DB) *Repositories {
 	return &Repositories{
 		Users:   NewUsersRepos(db),
 		Spheres: NewSpheresRepos(db),
+		Skills:  NewSkillsRepos(db),
 	}
 }

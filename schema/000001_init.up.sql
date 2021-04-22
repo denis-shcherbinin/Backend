@@ -100,7 +100,7 @@ CREATE TABLE "users"
     "password_hash" varchar(256),
     "in_search"     boolean,
     "registered_at" timestamp,
-    "image_url"         varchar(256)
+    "image_url"     varchar(256)
 );
 
 CREATE TABLE "users_sessions"
@@ -124,6 +124,37 @@ CREATE TABLE "users_skills"
     "id"       SERIAL PRIMARY KEY,
     "user_id"  int REFERENCES "users" ("id") on DELETE CASCADE,
     "skill_id" int REFERENCES "skills" ("id") on DELETE CASCADE
+);
+
+CREATE TABLE "users_profiles"
+(
+    "id"         SERIAL PRIMARY KEY,
+    "user_id"    int REFERENCES "users" ("id") on DELETE CASCADE unique,
+    "comment"    varchar(256),
+    "experience" varchar(256),
+    "about"      varchar(512),
+    "min_salary" varchar(256),
+    "max_salary" varchar(256)
+);
+
+CREATE TABLE "users_jobs"
+(
+    "id"               SERIAL PRIMARY KEY,
+    "user_id"          int REFERENCES "users" ("id") on DELETE CASCADE,
+    "company_name"     varchar(256),
+    "position"         varchar(256),
+    /*Work period*/
+    "from"             varchar(256),
+    "to"               varchar(256),
+    /**/
+    "responsibilities" varchar(512)
+);
+
+CREATE TABLE "users_jobs_skills"
+(
+    "id"          SERIAL PRIMARY KEY,
+    "user_job_id" int REFERENCES "users_jobs" ("id") on DELETE CASCADE,
+    "skill_id"    int REFERENCES "skills" ("id") on DELETE CASCADE
 );
 
 CREATE TABLE "users_resumes"
