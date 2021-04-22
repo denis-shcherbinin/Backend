@@ -71,7 +71,7 @@ func (u *UsersRepos) GetByCredentials(email, password string) (entity.User, erro
 
 	raw.Next()
 	err = raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
-		&user.Email, &user.Password, &user.InSearch, &user.RegisteredAt)
+		&user.Email, &user.Password, &user.InSearch, &user.RegisteredAt, &user.ImageURL)
 	if err != nil {
 		return user, err
 	}
