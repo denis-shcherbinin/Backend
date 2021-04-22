@@ -10,7 +10,7 @@ import (
 )
 
 type Users interface {
-	SignUp(input entity.UserSignUpInput, fileBody, fileType string, ) (int, string, error)
+	SignUp(input entity.UserSignUpInput, fileBody, fileType string) (int, string, error)
 	SignIn(input entity.UserSignInInput, userAgent string) (Tokens, error)
 	RefreshTokens(input entity.UserRefreshInput, userAgent string) (Tokens, error)
 
