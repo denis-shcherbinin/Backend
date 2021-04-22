@@ -55,7 +55,7 @@ func (u *UsersService) SignUp(input entity.UserSignUpInput, fileBody, fileType s
 
 	var (
 		imageURL string
-		err error
+		err      error
 	)
 
 	if len(fileBody) != 0 && len(fileType) != 0 {
@@ -99,10 +99,57 @@ func (u *UsersService) RefreshTokens(input entity.UserRefreshInput, userAgent st
 	return u.updateSession(userID, userAgent, input.Token)
 }
 
-func (u *UsersService) Profile(userID int) error {
-	return nil
+// Profile gather user profile with passed user id.
+// It returns user profile.
+func (u *UsersService) Profile(userID int) (entity.UserProfile, error) {
+	// todo: [SCN-71] Не отправлять пустую структуру, при ошибке в случае, когда есть хоть какая-то инфа, но не точно
 
-	// собираем профиль, обращаясь к repository(user)
+	// Getting user
+	user, err := u.repos.GetByID(userID)
+	if err != nil {
+		return entity.UserProfile{}, err
+	}
+
+	// Age calculating
+	l, _ := time.LoadLocation("Local")
+	day, _ := strconv.Atoi(user.BirthDate[:2])
+	month, _ := strconv.Atoi(user.BirthDate[3:5])
+	year, _ := strconv.Atoi(user.BirthDate[6:10])
+	userAge := strconv.Itoa(int(time.Now().Sub(time.Date(year, time.Month(month), day, 0, 0, 0, 0, l)).Hours() / 24 / 365))
+
+	// Getting user profile info
+	userProfileInfo, err := u.repos.GetProfileInfo(userID)
+	if err != nil {
+		return entity.UserProfile{}, err
+	}
+
+	// Getting user skills
+	userSkills, err := u.repos.GetSkills(userID)
+	if err != nil {
+		return entity.UserProfile{}, err
+	}
+
+	// Getting user jobs
+	userJobs, err := u.repos.GetJobs(userID)
+	if err != nil {
+		return entity.UserProfile{}, err
+	}
+
+	return entity.UserProfile{
+		FirstName:  user.FirstName,
+		LastName:   user.LastName,
+		Email:      user.Email,
+		ImageURL:   user.ImageURL,
+		Comment:    userProfileInfo[0],
+		Experience: userProfileInfo[1],
+		SkillLevel: userProfileInfo[2],
+		MinSalary:  userProfileInfo[3],
+		MaxSalary:  userProfileInfo[4],
+		About:      userProfileInfo[5],
+		Age:        userAge,
+		Skills:     userSkills,
+		Jobs:       userJobs,
+	}, nil
 }
 
 // Logout deletes all active sessions the user with passer id.
@@ -131,7 +178,7 @@ func (u *UsersService) generateTokens(id int) (Tokens, error) {
 		err    error
 	)
 
-	tokens.AccessToken, err = u.tokenManager.NewJWT(strconv.FormatInt(int64(id), 16), u.accessTokenTTL)
+	tokens.AccessToken, err = u.tokenManager.NewJWT(strconv.Itoa(id), u.accessTokenTTL)
 	if err != nil {
 		return tokens, err
 	}

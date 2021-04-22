@@ -17,7 +17,7 @@ func (h *Handler) initSpheresRoutes(api *gin.RouterGroup) {
 // @Summary Spheres
 // @Tags Spheres
 // @Description Get all spheres
-// @ModuleID getAll
+// @ModuleID getAllSpheres
 // @Produce  json
 // @Success 200 {object} spheresResponse
 // @Failure 400,404 {object} response

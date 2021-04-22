@@ -18,6 +18,8 @@ func NewSkillsRepos(db *sqlx.DB) *SkillsRepos {
 	}
 }
 
+// GetAll forms a slice of all skills.
+// It returns slice of all skills.
 func (s *SkillsRepos) GetAll() ([]entity.Skill, error) {
 	var skills []entity.Skill
 

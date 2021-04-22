@@ -4,6 +4,17 @@ CREATE TABLE "skills"
     "name" varchar(256) unique
 );
 
+CREATE TABLE "profiles"
+(
+    "id"          SERIAL PRIMARY KEY,
+    "comment"     varchar(256),
+    "experience"  varchar(256),
+    "skill_level" varchar(256),
+    "min_salary"  varchar(256),
+    "max_salary"  varchar(256),
+    "about"       varchar(512)
+);
+
 /*Spheres relations*/
 CREATE TABLE "spheres"
 (
@@ -16,6 +27,27 @@ CREATE TABLE "spheres_skills"
     "id"        SERIAL PRIMARY KEY,
     "sphere_id" int REFERENCES "spheres" ("id") on DELETE CASCADE,
     "skill_id"  int REFERENCES "skills" ("id") on DELETE CASCADE
+);
+/**/
+
+/*Jobs relations*/
+CREATE TABLE "jobs"
+(
+    "id"               SERIAL PRIMARY KEY,
+    "company_name"     varchar(256),
+    "position"         varchar(256),
+    /*Work period*/
+    "from"             varchar(256),
+    "to"               varchar(256),
+    /**/
+    "responsibilities" varchar(512)
+);
+
+CREATE TABLE "jobs_skills"
+(
+    "id"       SERIAL PRIMARY KEY,
+    "job_id"   int REFERENCES "jobs" ("id") on DELETE CASCADE,
+    "skill_id" int REFERENCES "skills" ("id") on DELETE CASCADE
 );
 /**/
 
@@ -130,31 +162,14 @@ CREATE TABLE "users_profiles"
 (
     "id"         SERIAL PRIMARY KEY,
     "user_id"    int REFERENCES "users" ("id") on DELETE CASCADE unique,
-    "comment"    varchar(256),
-    "experience" varchar(256),
-    "about"      varchar(512),
-    "min_salary" varchar(256),
-    "max_salary" varchar(256)
+    "profile_id" int REFERENCES "profiles" ("id") on DELETE CASCADE unique
 );
 
 CREATE TABLE "users_jobs"
 (
-    "id"               SERIAL PRIMARY KEY,
-    "user_id"          int REFERENCES "users" ("id") on DELETE CASCADE,
-    "company_name"     varchar(256),
-    "position"         varchar(256),
-    /*Work period*/
-    "from"             varchar(256),
-    "to"               varchar(256),
-    /**/
-    "responsibilities" varchar(512)
-);
-
-CREATE TABLE "users_jobs_skills"
-(
-    "id"          SERIAL PRIMARY KEY,
-    "user_job_id" int REFERENCES "users_jobs" ("id") on DELETE CASCADE,
-    "skill_id"    int REFERENCES "skills" ("id") on DELETE CASCADE
+    "id"      SERIAL PRIMARY KEY,
+    "user_id" int REFERENCES "users" ("id") on DELETE CASCADE,
+    "job_id"  int REFERENCES "jobs" ("id") on DELETE CASCADE
 );
 
 CREATE TABLE "users_resumes"

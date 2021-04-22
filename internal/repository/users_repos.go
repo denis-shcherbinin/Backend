@@ -72,17 +72,29 @@ func (u *UsersRepos) GetByCredentials(email, password string) (entity.User, erro
 	raw.Next()
 	err = raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
 		&user.Email, &user.Password, &user.InSearch, &user.RegisteredAt, &user.ImageURL)
+
+	return user, err
+}
+
+func (u *UsersRepos) GetByID(id int) (entity.User, error) {
+	var user entity.User
+
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.UsersTable)
+	raw, err := u.db.Query(query, id)
 	if err != nil {
-		return user, err
+		return user, errors.New("invalid user id")
 	}
 
-	return user, nil
+	raw.Next()
+	err = raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
+		&user.Email, &user.Password, &user.InSearch, &user.RegisteredAt, &user.ImageURL)
+
+	return user, err
 }
 
 // GetIDByRefreshToken looks in the user sessions table for the presence of a user with passed refresh token.
 // It returns user id and error.
 func (u *UsersRepos) GetIDByRefreshToken(refreshToken string) (int, error) {
-
 	var userID int
 
 	query := fmt.Sprintf("SELECT user_id FROM %s WHERE refresh_token=$1 AND expires_at > $2",
@@ -92,6 +104,144 @@ func (u *UsersRepos) GetIDByRefreshToken(refreshToken string) (int, error) {
 	}
 
 	return userID, nil
+}
+
+// GetProfileInfo gather additional user information with passed user id.
+// It returns all additional user profile info.
+func (u *UsersRepos) GetProfileInfo(id int) ([]string, error) {
+	info := make([]string, 6)
+
+	var profileID int
+	query := fmt.Sprintf("SELECT profile_id FROM %s WHERE user_id=$1", postgres.UsersProfilesTable)
+	row, err := u.db.Query(query, id)
+	if err != nil {
+		return info, nil
+	}
+	row.Next()
+	if err = row.Scan(&profileID); err != nil {
+		return info, err
+	}
+
+	query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.ProfilesTable)
+	row, err = u.db.Query(query, profileID)
+	if err != nil {
+		return info, err
+	}
+
+	err = row.Scan(&profileID, &info[0], &info[1], &info[2], &info[3], &info[4], &info[5])
+
+	return info, err
+}
+
+// GetSkills gather user skills with passed user id.
+// It returns all user skills.
+func (u *UsersRepos) GetSkills(id int) ([]entity.Skill, error) {
+	var skills []entity.Skill
+
+	query := fmt.Sprintf("SELECT skill_id FROM %s WHERE user_id=$1", postgres.UsersSkillsTable)
+	rows, err := u.db.Query(query, id)
+	if err != nil {
+		return skills, err
+	}
+
+	for rows.Next() {
+		var skillID int
+		if err = rows.Scan(&skillID); err != nil {
+			logrus.Error(err)
+			continue
+		}
+
+		var skill entity.Skill
+		query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.SkillsTable)
+		skillRow, err := u.db.Query(query, skillID)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+
+		skillRow.Next()
+
+		if err = skillRow.Scan(&skill.ID, &skill.Name); err != nil {
+			logrus.Error(err)
+			continue
+		}
+
+		skills = append(skills, skill)
+	}
+
+	return skills, nil
+}
+
+// GetJobs gather user jobs with passed user id.
+// It returns all user jobs.
+func (u *UsersRepos) GetJobs(userID int) ([]entity.Job, error) {
+	var jobs []entity.Job
+
+	query := fmt.Sprintf("SELECT job_id FROM %s WHERE user_id=$1", postgres.UsersJobsTable)
+	rows, err := u.db.Query(query, userID)
+	if err != nil {
+		return jobs, err
+	}
+
+	for rows.Next() {
+		var jobID int
+		if err = rows.Scan(&jobID); err != nil {
+			logrus.Error(err)
+			continue
+		}
+
+		// Getting jobs info
+		var job entity.Job
+		query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.JobsTable)
+		jobRow, err := u.db.Query(query, jobID)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+		jobRow.Next()
+		if err = jobRow.Scan(&jobID, &job.CompanyName, &job.Position, &job.WorkFrom, &job.WorkTo, &job.Responsibilities); err != nil {
+			logrus.Error(err)
+			continue
+		}
+
+		// Getting job skills
+		var skills []entity.Skill
+		query = fmt.Sprintf("SELECT skill_id FROM %s WHERE job_id=$1", postgres.JobsSkillsTable)
+		skillIDRows, err := u.db.Query(query, jobID)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+
+		for skillIDRows.Next() {
+			var skillID int
+			if err = skillIDRows.Scan(&skillID); err != nil {
+				logrus.Error(err)
+				continue
+			}
+
+			query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.SkillsTable)
+			skillRow, err := u.db.Query(query, skillID)
+			if err != nil {
+				logrus.Error(err)
+				continue
+			}
+
+			var skill entity.Skill
+			skillRow.Next()
+			if err = skillRow.Scan(&skill.ID, &skill.Name); err != nil {
+				logrus.Error(err)
+				continue
+			}
+
+			skills = append(skills, skill)
+		}
+		job.Skills = skills
+
+		jobs = append(jobs, job)
+	}
+
+	return jobs, nil
 }
 
 // DeleteAllSessions removes all user sessions from user sessions table with passed user id.

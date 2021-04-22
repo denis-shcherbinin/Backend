@@ -145,8 +145,20 @@ func (h *Handler) refresh(c *gin.Context) {
 	})
 }
 
+// @Summary User profile
+// @Security UserAuth
+// @Tags User
+// @Description user profile
+// @ModuleID profile
+// @Accept json
+// @Produce json
+// @Success 200 {object} userProfileResponse
+// @Failure 400,404 {object} response
+// @Failure 500 {object} response
+// @Failure default {object} response
+// @Router /user/profile [get]
 func (h *Handler) profile(c *gin.Context) {
-/*	userID, err := h.getUserID(c)
+	userID, err := h.getUserID(c)
 	if err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -158,9 +170,9 @@ func (h *Handler) profile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, profileResponse{
+	c.JSON(http.StatusOK, userProfileResponse{
 		Profile: profile,
-	})*/
+	})
 }
 
 // @Summary User logout

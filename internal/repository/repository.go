@@ -9,7 +9,11 @@ type Users interface {
 	Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill, imageURL string) (int, error)
 
 	GetByCredentials(email, password string) (entity.User, error)
+	GetByID(id int) (entity.User, error)
 	GetIDByRefreshToken(refreshToken string) (int, error)
+	GetProfileInfo(id int) ([]string, error)
+	GetSkills(id int) ([]entity.Skill, error)
+	GetJobs(id int) ([]entity.Job, error)
 
 	DeleteAllSessions(id int) error
 	DeleteAllAgentSessions(id int, userAgent string) error

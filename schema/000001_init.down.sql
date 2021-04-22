@@ -3,7 +3,6 @@ DROP TABLE "users_spheres";
 DROP TABLE "users_skills";
 DROP TABLE "users_resumes";
 DROP TABLE "users_companies";
-DROP TABLE "users_jobs_skills";
 DROP TABLE "users_jobs";
 DROP TABLE "users_profiles";
 DROP TABLE "users";
@@ -20,5 +19,10 @@ DROP TABLE "vacancies_skills";
 DROP TABLE "vacancies";
 
 DROP TABLE "spheres_skills";
-DROP TABLE "skills";
 DROP TABLE "spheres";
+
+DROP TABLE "jobs_skills";
+DROP TABLE "jobs";
+
+DROP TABLE "skills";
+DROP TABLE "profiles"

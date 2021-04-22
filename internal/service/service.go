@@ -14,8 +14,7 @@ type Users interface {
 	SignIn(input entity.UserSignInInput, userAgent string) (Tokens, error)
 	RefreshTokens(input entity.UserRefreshInput, userAgent string) (Tokens, error)
 
-	// Profile todo: return profile struct?
-	Profile(userID int) error
+	Profile(userID int) (entity.UserProfile, error)
 	Logout(userID int) error
 	SignOut(userID int, userAgent string) error
 
