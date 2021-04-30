@@ -18,7 +18,7 @@ func NewSpheresService(repos repository.Spheres) *SpheresService {
 // GetAll forms a slice of all spheres.
 // It returns slice of all spheres and error.
 func (s *SpheresService) GetAll() ([]entity.Sphere, error) {
-	return s.repos.Get()
+	return s.repos.GetAll()
 }
 
 // GetSkills forms slice of skills according to the passed slice of spheres.

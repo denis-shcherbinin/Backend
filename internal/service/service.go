@@ -10,10 +10,11 @@ import (
 )
 
 type Users interface {
-	SignUp(input entity.UserSignUpInput, fileBody, fileType string,) (int, string, error)
+	SignUp(input entity.UserSignUpInput, fileBody, fileType string) (int, string, error)
 	SignIn(input entity.UserSignInInput, userAgent string) (Tokens, error)
 	RefreshTokens(input entity.UserRefreshInput, userAgent string) (Tokens, error)
 
+	Profile(userID int) (entity.UserProfile, error)
 	Logout(userID int) error
 	SignOut(userID int, userAgent string) error
 
@@ -25,9 +26,14 @@ type Spheres interface {
 	GetSkills(spheres []entity.Sphere) ([]entity.Skill, error)
 }
 
+type Skills interface {
+	GetAll() ([]entity.Skill, error)
+}
+
 type Services struct {
 	Users   Users
 	Spheres Spheres
+	Skills  Skills
 	Storage *storage.Storage
 }
 

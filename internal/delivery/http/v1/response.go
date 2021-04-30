@@ -32,6 +32,10 @@ type skillsResponse struct {
 	Skills []entity.Skill `json:"skills"`
 }
 
+type userProfileResponse struct {
+	Profile entity.UserProfile `json:"profile"`
+}
+
 func newResponse(c *gin.Context, statusCode int, message string) {
 	logrus.Error(message)
 	c.AbortWithStatusJSON(statusCode, response{

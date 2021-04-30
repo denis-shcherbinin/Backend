@@ -1,5 +1,22 @@
 basePath: /api/v1/
 definitions:
+  entity.Job:
+    properties:
+      companyName:
+        type: string
+      position:
+        type: string
+      responsibilities:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/entity.Skill'
+        type: array
+      workFrom:
+        type: string
+      workTo:
+        type: string
+    type: object
   entity.Skill:
     properties:
       id:
@@ -29,6 +46,39 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  entity.UserProfile:
+    properties:
+      about:
+        type: string
+      age:
+        type: string
+      comment:
+        type: string
+      email:
+        type: string
+      experience:
+        type: string
+      firstName:
+        type: string
+      imageURL:
+        type: string
+      jobs:
+        items:
+          $ref: '#/definitions/entity.Job'
+        type: array
+      lastName:
+        type: string
+      maxSalary:
+        type: string
+      minSalary:
+        type: string
+      skillLevel:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/entity.Skill'
+        type: array
     type: object
   entity.UserRefreshInput:
     properties:
@@ -117,6 +167,11 @@ definitions:
       Exists:
         type: boolean
     type: object
+  v1.userProfileResponse:
+    properties:
+      profile:
+        $ref: '#/definitions/entity.UserProfile'
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -124,6 +179,35 @@ info:
   title: Network API
   version: "1.0"
 paths:
+  /skills/all:
+    get:
+      description: Get all skills
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.skillsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: Skills
+      tags:
+      - Skills
   /spheres/all:
     get:
       description: Get all spheres
@@ -278,7 +362,7 @@ paths:
         name: file
         required: true
         type: file
-      - description: Look at the userStringTemplate or entity.UserSignUpInput in models
+      - description: Look at the userStringTemplate or entity.UserSignUpInput in Models
         in: formData
         name: user
         required: true
@@ -375,6 +459,39 @@ paths:
       security:
       - UserAuth: []
       summary: User logout
+      tags:
+      - User
+  /user/profile:
+    get:
+      consumes:
+      - application/json
+      description: user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.userProfileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: User profile
       tags:
       - User
   /user/sign-out:

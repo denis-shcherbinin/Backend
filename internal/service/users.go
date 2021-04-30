@@ -55,7 +55,7 @@ func (u *UsersService) SignUp(input entity.UserSignUpInput, fileBody, fileType s
 
 	var (
 		imageURL string
-		err error
+		err      error
 	)
 
 	if len(fileBody) != 0 && len(fileType) != 0 {
@@ -99,6 +99,58 @@ func (u *UsersService) RefreshTokens(input entity.UserRefreshInput, userAgent st
 	return u.updateSession(userID, userAgent, input.Token)
 }
 
+// Profile gather user profile with passed user id.
+// It returns user profile.
+func (u *UsersService) Profile(userID int) (entity.UserProfile, error) {
+	var userProfile entity.UserProfile
+
+	// Getting user
+	user, err := u.repos.GetByID(userID)
+	if err != nil {
+		return userProfile, err
+	}
+	userProfile.FirstName = user.FirstName
+	userProfile.LastName = user.LastName
+	userProfile.Email = user.Email
+	userProfile.ImageURL = user.ImageURL
+
+	// Age calculating
+	l, _ := time.LoadLocation("Local")
+	day, _ := strconv.Atoi(user.BirthDate[:2])
+	month, _ := strconv.Atoi(user.BirthDate[3:5])
+	year, _ := strconv.Atoi(user.BirthDate[6:10])
+	userAge := strconv.Itoa(int(time.Now().Sub(time.Date(year, time.Month(month), day, 0, 0, 0, 0, l)).Hours() / 24 / 365))
+	userProfile.Age = userAge
+
+	// Getting user profile info
+	userProfileInfo, err := u.repos.GetProfileInfo(userID)
+	if err != nil {
+		return userProfile, err
+	}
+	userProfile.Comment = userProfileInfo[0]
+	userProfile.Experience = userProfileInfo[1]
+	userProfile.SkillLevel = userProfileInfo[2]
+	userProfile.MinSalary = userProfileInfo[3]
+	userProfile.MaxSalary = userProfileInfo[4]
+	userProfile.About = userProfileInfo[5]
+
+	// Getting user skills
+	userSkills, err := u.repos.GetSkills(userID)
+	if err != nil {
+		return userProfile, err
+	}
+	userProfile.Skills = userSkills
+
+	// Getting user jobs
+	userJobs, err := u.repos.GetJobs(userID)
+	if err != nil {
+		return userProfile, err
+	}
+	userProfile.Jobs = userJobs
+
+	return userProfile, nil
+}
+
 // Logout deletes all active sessions the user with passer id.
 // It returns an error.
 func (u *UsersService) Logout(userID int) error {
@@ -125,7 +177,7 @@ func (u *UsersService) generateTokens(id int) (Tokens, error) {
 		err    error
 	)
 
-	tokens.AccessToken, err = u.tokenManager.NewJWT(strconv.FormatInt(int64(id), 16), u.accessTokenTTL)
+	tokens.AccessToken, err = u.tokenManager.NewJWT(strconv.Itoa(id), u.accessTokenTTL)
 	if err != nil {
 		return tokens, err
 	}
