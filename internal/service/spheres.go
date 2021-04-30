@@ -35,5 +35,24 @@ func (s *SpheresService) GetSkills(spheres []entity.Sphere) ([]entity.Skill, err
 		skills = append(skills, sphereSkills...)
 	}
 
-	return skills, nil
+	return uniqueSkills(skills), nil
+}
+
+func uniqueSkills(skills []entity.Skill) []entity.Skill {
+	m := map[entity.Skill]struct{}{}
+	for _, s := range skills {
+		if _, ok := m[s]; !ok {
+			m[s] = struct{}{}
+		}
+	}
+
+	list := make([]entity.Skill, len(m))
+
+	i := 0
+	for v := range m {
+		list[i] = v
+		i++
+	}
+
+	return list
 }
