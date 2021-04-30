@@ -128,6 +128,7 @@ func (u *UsersRepos) GetProfileInfo(id int) ([]string, error) {
 		return info, err
 	}
 
+	row.Next()
 	err = row.Scan(&profileID, &info[0], &info[1], &info[2], &info[3], &info[4], &info[5])
 
 	return info, err
@@ -160,7 +161,6 @@ func (u *UsersRepos) GetSkills(id int) ([]entity.Skill, error) {
 		}
 
 		skillRow.Next()
-
 		if err = skillRow.Scan(&skill.ID, &skill.Name); err != nil {
 			logrus.Error(err)
 			continue
