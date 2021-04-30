@@ -102,13 +102,17 @@ func (u *UsersService) RefreshTokens(input entity.UserRefreshInput, userAgent st
 // Profile gather user profile with passed user id.
 // It returns user profile.
 func (u *UsersService) Profile(userID int) (entity.UserProfile, error) {
-	// todo: [SCN-71] Не отправлять пустую структуру, при ошибке в случае, когда есть хоть какая-то инфа, но не точно
+	var userProfile entity.UserProfile
 
 	// Getting user
 	user, err := u.repos.GetByID(userID)
 	if err != nil {
-		return entity.UserProfile{}, err
+		return userProfile, err
 	}
+	userProfile.FirstName = user.FirstName
+	userProfile.LastName = user.LastName
+	userProfile.Email = user.Email
+	userProfile.ImageURL = user.ImageURL
 
 	// Age calculating
 	l, _ := time.LoadLocation("Local")
@@ -116,40 +120,35 @@ func (u *UsersService) Profile(userID int) (entity.UserProfile, error) {
 	month, _ := strconv.Atoi(user.BirthDate[3:5])
 	year, _ := strconv.Atoi(user.BirthDate[6:10])
 	userAge := strconv.Itoa(int(time.Now().Sub(time.Date(year, time.Month(month), day, 0, 0, 0, 0, l)).Hours() / 24 / 365))
+	userProfile.Age = userAge
 
 	// Getting user profile info
 	userProfileInfo, err := u.repos.GetProfileInfo(userID)
 	if err != nil {
-		return entity.UserProfile{}, err
+		return userProfile, err
 	}
+	userProfile.Comment = userProfileInfo[0]
+	userProfile.Experience = userProfileInfo[1]
+	userProfile.SkillLevel = userProfileInfo[2]
+	userProfile.MinSalary = userProfileInfo[3]
+	userProfile.MaxSalary = userProfileInfo[4]
+	userProfile.About = userProfileInfo[5]
 
 	// Getting user skills
 	userSkills, err := u.repos.GetSkills(userID)
 	if err != nil {
-		return entity.UserProfile{}, err
+		return userProfile, err
 	}
+	userProfile.Skills = userSkills
 
 	// Getting user jobs
 	userJobs, err := u.repos.GetJobs(userID)
 	if err != nil {
-		return entity.UserProfile{}, err
+		return userProfile, err
 	}
+	userProfile.Jobs = userJobs
 
-	return entity.UserProfile{
-		FirstName:  user.FirstName,
-		LastName:   user.LastName,
-		Email:      user.Email,
-		ImageURL:   user.ImageURL,
-		Comment:    userProfileInfo[0],
-		Experience: userProfileInfo[1],
-		SkillLevel: userProfileInfo[2],
-		MinSalary:  userProfileInfo[3],
-		MaxSalary:  userProfileInfo[4],
-		About:      userProfileInfo[5],
-		Age:        userAge,
-		Skills:     userSkills,
-		Jobs:       userJobs,
-	}, nil
+	return userProfile, nil
 }
 
 // Logout deletes all active sessions the user with passer id.
