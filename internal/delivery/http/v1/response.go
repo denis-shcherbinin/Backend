@@ -15,7 +15,8 @@ type userExistenceResponse struct {
 }
 
 type signUpResponse struct {
-	ID int `json:"id"`
+	ID       int    `json:"id"`
+	ImageURL string `json:"imageURL"`
 }
 
 type tokensResponse struct {
@@ -29,6 +30,10 @@ type spheresResponse struct {
 
 type skillsResponse struct {
 	Skills []entity.Skill `json:"skills"`
+}
+
+type userProfileResponse struct {
+	Profile entity.UserProfile `json:"profile"`
 }
 
 func newResponse(c *gin.Context, statusCode int, message string) {

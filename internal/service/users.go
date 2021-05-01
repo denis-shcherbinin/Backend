@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/PolyProjectOPD/Backend/internal/repository"
+	"github.com/PolyProjectOPD/Backend/internal/storage"
 	"github.com/PolyProjectOPD/Backend/pkg/auth"
 	"github.com/PolyProjectOPD/Backend/pkg/hash"
 	"strconv"
@@ -16,6 +17,7 @@ type Tokens struct {
 
 type UsersService struct {
 	repos        repository.Users
+	storage      *storage.Storage
 	hasher       hash.PasswordHasher
 	tokenManager auth.TokenManager
 
@@ -23,10 +25,11 @@ type UsersService struct {
 	refreshTokenTTL time.Duration
 }
 
-func NewUsersService(repos repository.Users, hasher hash.PasswordHasher,
+func NewUsersService(repos repository.Users, storage *storage.Storage, hasher hash.PasswordHasher,
 	tokenManager auth.TokenManager, accessTokenTTL, refreshTokenTTL time.Duration) *UsersService {
 	return &UsersService{
 		repos:           repos,
+		storage:         storage,
 		hasher:          hasher,
 		tokenManager:    tokenManager,
 		accessTokenTTL:  accessTokenTTL,
@@ -34,15 +37,9 @@ func NewUsersService(repos repository.Users, hasher hash.PasswordHasher,
 	}
 }
 
-// Existence checks for the existence of a user with passed email.
-// It returns true if user exists otherwise false.
-func (u *UsersService) Existence(input entity.UserExistenceInput) bool {
-	return u.repos.Existence(input.Email)
-}
-
-// SignUp registers a new user.
+// SignUp registers a new user and upload his image.
 // It returns new user id and error.
-func (u *UsersService) SignUp(input entity.UserSignUpInput) (int, error) {
+func (u *UsersService) SignUp(input entity.UserSignUpInput, fileBody, fileType string) (int, string, error) {
 	user := entity.User{
 		FirstName:    input.FirstName,
 		LastName:     input.LastName,
@@ -56,12 +53,27 @@ func (u *UsersService) SignUp(input entity.UserSignUpInput) (int, error) {
 	spheres := input.Spheres
 	skills := input.Skills
 
-	id, err := u.repos.Create(user, spheres, skills)
-	if err != nil {
-		return 0, err
+	var (
+		imageURL string
+		err      error
+	)
+
+	if len(fileBody) != 0 && len(fileType) != 0 {
+		imageURL, err = u.storage.Upload(storage.UploadInput{
+			Body:        fileBody,
+			ContentType: fileType,
+		})
+		if err != nil {
+			return 0, "", err
+		}
 	}
 
-	return id, nil
+	id, err := u.repos.Create(user, spheres, skills, imageURL)
+	if err != nil {
+		return 0, "", err
+	}
+
+	return id, imageURL, nil
 }
 
 // SignIn authenticates the user.
@@ -85,6 +97,58 @@ func (u *UsersService) RefreshTokens(input entity.UserRefreshInput, userAgent st
 	}
 
 	return u.updateSession(userID, userAgent, input.Token)
+}
+
+// Profile gather user profile with passed user id.
+// It returns user profile.
+func (u *UsersService) Profile(userID int) (entity.UserProfile, error) {
+	var userProfile entity.UserProfile
+
+	// Getting user
+	user, err := u.repos.GetByID(userID)
+	if err != nil {
+		return userProfile, err
+	}
+	userProfile.FirstName = user.FirstName
+	userProfile.LastName = user.LastName
+	userProfile.Email = user.Email
+	userProfile.ImageURL = user.ImageURL
+
+	// Age calculating
+	l, _ := time.LoadLocation("Local")
+	day, _ := strconv.Atoi(user.BirthDate[:2])
+	month, _ := strconv.Atoi(user.BirthDate[3:5])
+	year, _ := strconv.Atoi(user.BirthDate[6:10])
+	userAge := strconv.Itoa(int(time.Now().Sub(time.Date(year, time.Month(month), day, 0, 0, 0, 0, l)).Hours() / 24 / 365))
+	userProfile.Age = userAge
+
+	// Getting user profile info
+	userProfileInfo, err := u.repos.GetProfileInfo(userID)
+	if err != nil {
+		return userProfile, err
+	}
+	userProfile.Comment = userProfileInfo[0]
+	userProfile.Experience = userProfileInfo[1]
+	userProfile.SkillLevel = userProfileInfo[2]
+	userProfile.MinSalary = userProfileInfo[3]
+	userProfile.MaxSalary = userProfileInfo[4]
+	userProfile.About = userProfileInfo[5]
+
+	// Getting user skills
+	userSkills, err := u.repos.GetSkills(userID)
+	if err != nil {
+		return userProfile, err
+	}
+	userProfile.Skills = userSkills
+
+	// Getting user jobs
+	userJobs, err := u.repos.GetJobs(userID)
+	if err != nil {
+		return userProfile, err
+	}
+	userProfile.Jobs = userJobs
+
+	return userProfile, nil
 }
 
 // Logout deletes all active sessions the user with passer id.
@@ -113,7 +177,7 @@ func (u *UsersService) generateTokens(id int) (Tokens, error) {
 		err    error
 	)
 
-	tokens.AccessToken, err = u.tokenManager.NewJWT(strconv.FormatInt(int64(id), 16), u.accessTokenTTL)
+	tokens.AccessToken, err = u.tokenManager.NewJWT(strconv.Itoa(id), u.accessTokenTTL)
 	if err != nil {
 		return tokens, err
 	}

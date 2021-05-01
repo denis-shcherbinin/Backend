@@ -11,4 +11,5 @@ type User struct {
 	Password     string    `json:"password"`
 	InSearch     bool      `json:"inSearch"`
 	RegisteredAt time.Time `json:"registeredAt"`
+	ImageURL     string    `json:"imageURL"`
 }

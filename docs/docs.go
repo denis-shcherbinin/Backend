@@ -24,6 +24,50 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/skills/all": {
+            "get": {
+                "description": "Get all skills",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Skills"
+                ],
+                "summary": "Skills",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.skillsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    }
+                }
+            }
+        },
         "/spheres/all": {
             "get": {
                 "description": "Get all spheres",
@@ -246,7 +290,7 @@ var doc = `{
             "post": {
                 "description": "User sign-up",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -257,10 +301,23 @@ var doc = `{
                 "summary": "User SignUp",
                 "parameters": [
                     {
-                        "description": "Sign-up info",
-                        "name": "input",
+                        "type": "file",
+                        "description": "Image [jpeg/png]",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Look at the userStringTemplate or entity.UserSignUpInput in Models",
+                        "name": "user",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "description": "User sign-up template",
+                        "name": "userStringTemplate",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/entity.UserSignUpInput"
                         }
@@ -306,49 +363,6 @@ var doc = `{
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User Auth"
-                ],
-                "summary": "User existence",
-                "parameters": [
-                    {
-                        "description": "User existence info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.UserExistenceInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/v1.userExistenceResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/v1.response"
-                        }
-                    },
-                    "404": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/v1.response"
-                        }
-                    }
-                }
-            }
-        },
-        "/spheres/all": {
-            "get": {
-                "description": "Get all spheres",
                 "produces": [
                     "application/json"
                 ],
@@ -441,6 +455,58 @@ var doc = `{
                 }
             }
         },
+        "/user/profile": {
+            "get": {
+                "security": [
+                    {
+                        "UserAuth": []
+                    }
+                ],
+                "description": "user profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.userProfileResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    }
+                }
+            }
+        },
         "/user/sign-out": {
             "get": {
                 "security": [
@@ -495,6 +561,32 @@ var doc = `{
         }
     },
     "definitions": {
+        "entity.Job": {
+            "type": "object",
+            "properties": {
+                "companyName": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "responsibilities": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Skill"
+                    }
+                },
+                "workFrom": {
+                    "type": "string"
+                },
+                "workTo": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.Skill": {
             "type": "object",
             "properties": {
@@ -539,6 +631,56 @@ var doc = `{
             "properties": {
                 "email": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.UserProfile": {
+            "type": "object",
+            "properties": {
+                "about": {
+                    "type": "string"
+                },
+                "age": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "experience": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "imageURL": {
+                    "type": "string"
+                },
+                "jobs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Job"
+                    }
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "maxSalary": {
+                    "type": "string"
+                },
+                "minSalary": {
+                    "type": "string"
+                },
+                "skillLevel": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Skill"
+                    }
                 }
             }
         },
@@ -626,6 +768,9 @@ var doc = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                },
+                "imageURL": {
+                    "type": "string"
                 }
             }
         },
@@ -667,6 +812,14 @@ var doc = `{
             "properties": {
                 "Exists": {
                     "type": "boolean"
+                }
+            }
+        },
+        "v1.userProfileResponse": {
+            "type": "object",
+            "properties": {
+                "profile": {
+                    "$ref": "#/definitions/entity.UserProfile"
                 }
             }
         }

@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"encoding/json"
 	"errors"
+	"github.com/PolyProjectOPD/Backend/internal/entity"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -12,6 +14,11 @@ const (
 	authorizationHeader = "Authorization"
 	userCtx             = "userID"
 )
+
+var imageTypes = map[string]struct{}{
+	"image/jpeg": {},
+	"image/png":  {},
+}
 
 func (h *Handler) userIdentify(c *gin.Context) {
 	id, err := h.parseAuthHeader(c)
@@ -62,4 +69,57 @@ func (h *Handler) getUserAgent(c *gin.Context) (string, error) {
 	}
 
 	return userAgent, nil
+}
+
+func (h *Handler) getImageFromMultipartFormData(c *gin.Context) (string, string, error) {
+	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		return "", "", err
+	}
+	defer file.Close()
+
+	fileBody := make([]byte, fileHeader.Size)
+	_, err = file.Read(fileBody)
+	if err != nil {
+		return "", "", err
+	}
+	fileType := http.DetectContentType(fileBody)
+
+	// Validate File Type
+	if _, ok := imageTypes[fileType]; !ok {
+		return "", "", errors.New("file type isn't supported")
+	}
+
+	return string(fileBody), fileType, nil
+}
+
+func (h *Handler) getUserSignUpInputFromMultipartFormData(c *gin.Context) (entity.UserSignUpInput, error) {
+	formValue := c.Request.PostFormValue("user")
+	var input entity.UserSignUpInput
+	err := json.Unmarshal([]byte(formValue), &input)
+	if err != nil {
+		return input, err
+	}
+
+	if len(input.FirstName) < 2 || len(input.FirstName) > 64{
+		return input, errors.New("invalid firstName")
+	}
+
+	if len(input.LastName) < 2 || len(input.LastName) > 64 {
+		return input, errors.New("invalid lastName")
+	}
+
+	if len(input.BirthDate) != 10 {
+		return input, errors.New("invalid birthDate")
+	}
+
+	if len(input.Email) == 0 {
+		return input, errors.New("invalid email")
+	}
+
+	if len(input.Password) < 8 {
+		return input, errors.New("invalid password")
+	}
+
+	return input, nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/PolyProjectOPD/Backend/internal/repository/postgres"
 	"github.com/PolyProjectOPD/Backend/internal/server"
 	"github.com/PolyProjectOPD/Backend/internal/service"
+	"github.com/PolyProjectOPD/Backend/internal/storage"
 	"github.com/PolyProjectOPD/Backend/pkg/auth"
 	"github.com/PolyProjectOPD/Backend/pkg/hash"
 	"github.com/sirupsen/logrus"
@@ -27,6 +28,8 @@ import (
 // @securityDefinitions.apikey UserAuth
 // @in header
 // @name Authorization
+
+// Run launches the API
 func Run(configPath string) {
 
 	logrus.SetFormatter(new(logrus.JSONFormatter))
@@ -41,6 +44,11 @@ func Run(configPath string) {
 		logrus.Fatalf("failed to initialize postgres db: %s", err.Error())
 	}
 
+	storageClient, err := storage.NewStorage(cfg.Storage)
+	if err != nil {
+		logrus.Fatalf("failed to initialize storage client: %s", err.Error())
+	}
+
 	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
 	tokenManager, err := auth.NewManager(cfg.Auth.JWTConfig.SigningKey)
 	if err != nil {
@@ -50,6 +58,7 @@ func Run(configPath string) {
 	repos := repository.NewRepositories(db)
 	services := service.NewServices(service.Deps{
 		Repos:           repos,
+		Storage:         storageClient,
 		Hasher:          hasher,
 		TokenManager:    tokenManager,
 		AccessTokenTTL:  cfg.Auth.JWTConfig.AccessTokenTTL,

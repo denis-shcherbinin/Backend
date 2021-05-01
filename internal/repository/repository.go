@@ -6,33 +6,43 @@ import (
 )
 
 type Users interface {
-	Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill) (int, error)
+	Create(user entity.User, spheres []entity.Sphere, skills []entity.Skill, imageURL string) (int, error)
 
 	GetByCredentials(email, password string) (entity.User, error)
+	GetByID(id int) (entity.User, error)
 	GetIDByRefreshToken(refreshToken string) (int, error)
+	GetProfileInfo(id int) ([]string, error)
+	GetSkills(id int) ([]entity.Skill, error)
+	GetJobs(id int) ([]entity.Job, error)
 
 	DeleteAllSessions(id int) error
 	DeleteAllAgentSessions(id int, userAgent string) error
 
 	CreateSession(id int, session entity.Session) error
 	UpdateSession(id int, refreshToken string, session entity.Session) error
-	
-  Existence(email string) bool
+
+	Existence(email string) bool
 }
 
 type Spheres interface {
-	Get() ([]entity.Sphere, error)
+	GetAll() ([]entity.Sphere, error)
 	GetSkills(sphere entity.Sphere) ([]entity.Skill, error)
+}
+
+type Skills interface {
+	GetAll() ([]entity.Skill, error)
 }
 
 type Repositories struct {
 	Users   Users
 	Spheres Spheres
+	Skills  Skills
 }
 
 func NewRepositories(db *sqlx.DB) *Repositories {
 	return &Repositories{
 		Users:   NewUsersRepos(db),
 		Spheres: NewSpheresRepos(db),
+		Skills:  NewSkillsRepos(db),
 	}
 }

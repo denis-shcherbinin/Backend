@@ -12,6 +12,11 @@ db:
   sslmode: "disable"
   driver_name: "postgres"
 
+storage:
+  endpoint: "fra1.digitaloceanspaces.com"
+  region: "eu-central-1"
+  name: "network-storage"
+
 auth:
   access_token_ttl: 900s #15 minutes
   refresh_token_ttl: 2592000s #30 days

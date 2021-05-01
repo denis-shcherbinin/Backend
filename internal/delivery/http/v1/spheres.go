@@ -9,7 +9,7 @@ import (
 func (h *Handler) initSpheresRoutes(api *gin.RouterGroup) {
 	spheres := api.Group("/spheres")
 	{
-		spheres.GET("/all", h.getAll)
+		spheres.GET("/all", h.getAllSpheres)
 		spheres.POST("/skills", h.getSkills)
 	}
 }
@@ -17,14 +17,14 @@ func (h *Handler) initSpheresRoutes(api *gin.RouterGroup) {
 // @Summary Spheres
 // @Tags Spheres
 // @Description Get all spheres
-// @ModuleID getAll
+// @ModuleID getAllSpheres
 // @Produce  json
 // @Success 200 {object} spheresResponse
 // @Failure 400,404 {object} response
 // @Failure 500 {object} response
 // @Failure default {object} response
 // @Router /spheres/all [get]
-func (h *Handler) getAll(c *gin.Context) {
+func (h *Handler) getAllSpheres(c *gin.Context) {
 	spheres, err := h.services.Spheres.GetAll()
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())

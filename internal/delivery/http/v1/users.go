@@ -18,6 +18,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 
 		authenticated := user.Group("/", h.userIdentify)
 		{
+			authenticated.GET("/profile", h.profile)
 			authenticated.GET("/logout", h.logout)
 			authenticated.GET("/sign-out", h.signOut)
 		}
@@ -26,56 +27,45 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// @Summary User existence
-// @Tags User Auth
-// @Description User existence
-// @Accept  json
-// @Produce  json
-// @Param input body entity.UserExistenceInput true "User existence info"
-// @Success 200 {object} userExistenceResponse
-// @Failure 400,404 {object} response
-// @Router /auth/user-existence [post]
-func (h *Handler) isUserExists(c *gin.Context) {
-	var input entity.UserExistenceInput
-
-	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, userExistenceResponse{
-		Exists: h.services.Users.Existence(input),
-	})
-}
-
 // @Summary User SignUp
 // @Tags User auth
 // @Description User sign-up
 // @ModuleID signUp
-// @Accept json
+// @Accept mpfd
 // @Produce json
-// @Param input body entity.UserSignUpInput true "Sign-up info"
+// @Param file formData file true "Image [jpeg/png]"
+// @Param user formData string true "Look at the userStringTemplate or entity.UserSignUpInput in Models"
+// @Param userStringTemplate body entity.UserSignUpInput false "User sign-up template"
 // @Success 201 {object} signUpResponse
 // @Failure 400,404 {object} response
 // @Failure 500 {object} response
 // @Failure default {object} response
 // @Router /user/auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
-	var input entity.UserSignUpInput
+	// Image parsing
+	fileBody, fileType, err := h.getImageFromMultipartFormData(c)
+	if err != nil {
+		if err.Error() != "http: no such file" {
+			newResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
+	}
 
-	if err := c.BindJSON(&input); err != nil {
+	signUpInput, err := h.getUserSignUpInputFromMultipartFormData(c)
+	if err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.Users.SignUp(input)
+	id, imageURL, err := h.services.Users.SignUp(signUpInput, fileBody, fileType)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.JSON(http.StatusCreated, signUpResponse{
-		ID: id,
+		ID:       id,
+		ImageURL: imageURL,
 	})
 }
 
@@ -152,6 +142,36 @@ func (h *Handler) refresh(c *gin.Context) {
 	c.JSON(http.StatusOK, tokensResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
+	})
+}
+
+// @Summary User profile
+// @Security UserAuth
+// @Tags User
+// @Description user profile
+// @ModuleID profile
+// @Accept json
+// @Produce json
+// @Success 200 {object} userProfileResponse
+// @Failure 400,404 {object} response
+// @Failure 500 {object} response
+// @Failure default {object} response
+// @Router /user/profile [get]
+func (h *Handler) profile(c *gin.Context) {
+	userID, err := h.getUserID(c)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	profile, err := h.services.Users.Profile(userID)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, userProfileResponse{
+		Profile: profile,
 	})
 }
 
