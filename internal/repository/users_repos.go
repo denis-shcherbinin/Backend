@@ -64,13 +64,9 @@ func (u *UsersRepos) GetByCredentials(email, password string) (entity.User, erro
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1 AND password_hash=$2", postgres.UsersTable)
 
-	raw, err := u.db.Query(query, email, password)
-	if err != nil {
-		return user, errors.New("invalid email or password")
-	}
+	raw := u.db.QueryRow(query, email, password)
 
-	raw.Next()
-	err = raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
+	err := raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
 		&user.Email, &user.Password, &user.InSearch, &user.RegisteredAt, &user.ImageURL)
 
 	return user, err
@@ -80,13 +76,9 @@ func (u *UsersRepos) GetByID(id int) (entity.User, error) {
 	var user entity.User
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.UsersTable)
-	raw, err := u.db.Query(query, id)
-	if err != nil {
-		return user, errors.New("invalid user id")
-	}
+	raw := u.db.QueryRow(query, id)
 
-	raw.Next()
-	err = raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
+	err := raw.Scan(&user.ID, &user.FirstName, &user.LastName, &user.BirthDate,
 		&user.Email, &user.Password, &user.InSearch, &user.RegisteredAt, &user.ImageURL)
 
 	return user, err
@@ -111,25 +103,11 @@ func (u *UsersRepos) GetIDByRefreshToken(refreshToken string) (int, error) {
 func (u *UsersRepos) GetProfileInfo(id int) ([]string, error) {
 	info := make([]string, 6)
 
-	var profileID int
-	query := fmt.Sprintf("SELECT profile_id FROM %s WHERE user_id=$1", postgres.UsersProfilesTable)
-	row, err := u.db.Query(query, id)
-	if err != nil {
-		return info, nil
-	}
-	row.Next()
-	if err = row.Scan(&profileID); err != nil {
-		return info, err
-	}
+	query := fmt.Sprintf("SELECT p.comment, p.experience, p.skill_level, p.min_salary, p.max_salary, p.about FROM %s "+
+		"p INNER JOIN %s up on p.id=up.profile_id WHERE up.user_id=$1", postgres.ProfilesTable, postgres.UsersProfilesTable)
+	row := u.db.QueryRow(query, id)
 
-	query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.ProfilesTable)
-	row, err = u.db.Query(query, profileID)
-	if err != nil {
-		return info, err
-	}
-
-	row.Next()
-	err = row.Scan(&profileID, &info[0], &info[1], &info[2], &info[3], &info[4], &info[5])
+	err := row.Scan(&info[0], &info[1], &info[2], &info[3], &info[4], &info[5])
 
 	return info, err
 }
@@ -139,29 +117,17 @@ func (u *UsersRepos) GetProfileInfo(id int) ([]string, error) {
 func (u *UsersRepos) GetSkills(id int) ([]entity.Skill, error) {
 	var skills []entity.Skill
 
-	query := fmt.Sprintf("SELECT skill_id FROM %s WHERE user_id=$1", postgres.UsersSkillsTable)
-	rows, err := u.db.Query(query, id)
+	skillsQuery := fmt.Sprintf("SELECT s.id, s.name FROM %s s INNER JOIN %s us on s.id=us.skill_id WHERE us.user_id=$1",
+		postgres.SkillsTable, postgres.UsersSkillsTable)
+	skillsRows, err := u.db.Query(skillsQuery, id)
 	if err != nil {
 		return skills, err
 	}
 
-	for rows.Next() {
-		var skillID int
-		if err = rows.Scan(&skillID); err != nil {
-			logrus.Error(err)
-			continue
-		}
-
+	for skillsRows.Next() {
 		var skill entity.Skill
-		query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.SkillsTable)
-		skillRow, err := u.db.Query(query, skillID)
-		if err != nil {
-			logrus.Error(err)
-			continue
-		}
 
-		skillRow.Next()
-		if err = skillRow.Scan(&skill.ID, &skill.Name); err != nil {
+		if err = skillsRows.Scan(&skill.ID, &skill.Name); err != nil {
 			logrus.Error(err)
 			continue
 		}
@@ -177,68 +143,33 @@ func (u *UsersRepos) GetSkills(id int) ([]entity.Skill, error) {
 func (u *UsersRepos) GetJobs(userID int) ([]entity.Job, error) {
 	var jobs []entity.Job
 
-	query := fmt.Sprintf("SELECT job_id FROM %s WHERE user_id=$1", postgres.UsersJobsTable)
-	rows, err := u.db.Query(query, userID)
+	jobsQuery := fmt.Sprintf("SELECT j.id, j.company_name, j.position, j.from, j.to, j.responsibilities FROM %s "+
+		"j INNER JOIN %s uj on j.id=uj.job_id WHERE uj.user_id=$1", postgres.JobsTable, postgres.UsersJobsTable)
+	jobsRows, err := u.db.Query(jobsQuery, userID)
 	if err != nil {
 		return jobs, err
 	}
 
-	for rows.Next() {
+	var jobsID []int
+	for jobsRows.Next() {
 		var jobID int
-		if err = rows.Scan(&jobID); err != nil {
-			logrus.Error(err)
-			continue
-		}
-
-		// Getting jobs info
 		var job entity.Job
-		query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.JobsTable)
-		jobRow, err := u.db.Query(query, jobID)
-		if err != nil {
-			logrus.Error(err)
-			continue
-		}
-		jobRow.Next()
-		if err = jobRow.Scan(&jobID, &job.CompanyName, &job.Position, &job.WorkFrom, &job.WorkTo, &job.Responsibilities); err != nil {
+		if err = jobsRows.Scan(&jobID, &job.CompanyName, &job.Position, &job.WorkFrom, &job.WorkTo, &job.Responsibilities); err != nil {
 			logrus.Error(err)
 			continue
 		}
 
-		// Getting job skills
-		var skills []entity.Skill
-		query = fmt.Sprintf("SELECT skill_id FROM %s WHERE job_id=$1", postgres.JobsSkillsTable)
-		skillIDRows, err := u.db.Query(query, jobID)
-		if err != nil {
-			logrus.Error(err)
-			continue
-		}
-
-		for skillIDRows.Next() {
-			var skillID int
-			if err = skillIDRows.Scan(&skillID); err != nil {
-				logrus.Error(err)
-				continue
-			}
-
-			query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.SkillsTable)
-			skillRow, err := u.db.Query(query, skillID)
-			if err != nil {
-				logrus.Error(err)
-				continue
-			}
-
-			var skill entity.Skill
-			skillRow.Next()
-			if err = skillRow.Scan(&skill.ID, &skill.Name); err != nil {
-				logrus.Error(err)
-				continue
-			}
-
-			skills = append(skills, skill)
-		}
-		job.Skills = skills
-
+		jobsID = append(jobsID, jobID)
 		jobs = append(jobs, job)
+	}
+
+	// Так как в пакете для работы с БД нет нормального решения для обработки двух query в цикле(либо надо искать лучше),
+	// используется второй цикл и доп. массив с jobs id
+	for i, id := range jobsID {
+		jobs[i].Skills, err = u.getJobsSkills(id)
+		if err != nil {
+			logrus.Error(err)
+		}
 	}
 
 	return jobs, nil
@@ -265,7 +196,8 @@ func (u *UsersRepos) DeleteAllAgentSessions(id int, userAgent string) error {
 // It returns the error.
 func (u *UsersRepos) CreateSession(id int, session entity.Session) error {
 	var sessionsAmount []int
-	query := fmt.Sprintf("SELECT COUNT(user_id) as amount FROM %s WHERE user_id=$1 AND user_agent=$2", postgres.UsersSessionsTable)
+	query := fmt.Sprintf("SELECT COUNT(user_id) as amount FROM %s WHERE user_id=$1 AND user_agent=$2",
+		postgres.UsersSessionsTable)
 	if err := u.db.Select(&sessionsAmount, query, id, session.UserAgent); err != nil {
 		return err
 	}
@@ -301,4 +233,28 @@ func (u *UsersRepos) Existence(email string) bool {
 	}
 
 	return amount[0] == 1
+}
+
+func (u *UsersRepos) getJobsSkills(jobID int) ([]entity.Skill, error) {
+	var skills []entity.Skill
+
+	skillsQuery := fmt.Sprintf("SELECT s.id, s.name FROM %s s "+
+		"INNER JOIN %s js on s.id=js.skill_id WHERE js.job_id=$1", postgres.SkillsTable, postgres.JobsSkillsTable)
+	skillsRows, err := u.db.Query(skillsQuery, jobID)
+	if err != nil {
+		return skills, err
+	}
+
+	for skillsRows.Next() {
+		var skill entity.Skill
+
+		if err = skillsRows.Scan(&skill.ID, &skill.Name); err != nil {
+			logrus.Error(err)
+			continue
+		}
+
+		skills = append(skills, skill)
+	}
+
+	return skills, nil
 }
