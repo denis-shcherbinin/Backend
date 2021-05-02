@@ -49,10 +49,12 @@ type Deps struct {
 func NewServices(deps Deps) *Services {
 	usersService := NewUsersService(deps.Repos.Users, deps.Storage, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 	spheresService := NewSpheresService(deps.Repos.Spheres)
+	skillsService := NewSkillsService(deps.Repos.Skills)
 
 	return &Services{
 		Users:   usersService,
 		Spheres: spheresService,
+		Skills:  skillsService,
 		Storage: deps.Storage,
 	}
 }

@@ -49,33 +49,21 @@ func (s *SpheresRepos) GetAll() ([]entity.Sphere, error) {
 func (s *SpheresRepos) GetSkills(sphere entity.Sphere) ([]entity.Skill, error) {
 	var skills []entity.Skill
 
-	query := fmt.Sprintf("SELECT skill_id FROM %s WHERE sphere_id=$1", postgres.SpheresSkillsTable)
-	rows, err := s.db.Query(query, sphere.ID)
+	skillsQuery := fmt.Sprintf("SELECT s.id, s.name FROM %s s INNER JOIN %s ss on s.id=ss.skill_id WHERE ss.sphere_id=$1",
+		postgres.SkillsTable, postgres.SpheresSkillsTable)
+	skillsRows, err := s.db.Query(skillsQuery, sphere.ID)
 	if err != nil {
 		return skills, err
 	}
 
-	for rows.Next() {
-		var skillID int
-		if err = rows.Scan(&skillID); err != nil {
-			logrus.Error(err)
-			continue
-		}
-
+	for skillsRows.Next() {
 		var skill entity.Skill
-		query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", postgres.SkillsTable)
 
-		skillRow, err := s.db.Query(query, skillID)
-		if err != nil {
+		if err = skillsRows.Scan(&skill.ID, &skill.Name); err != nil {
 			logrus.Error(err)
 			continue
 		}
 
-		skillRow.Next()
-		if err = skillRow.Scan(&skill.ID, &skill.Name); err != nil {
-			logrus.Error(err)
-			continue
-		}
 		skills = append(skills, skill)
 	}
 

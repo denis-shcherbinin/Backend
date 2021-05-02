@@ -11,7 +11,7 @@ type response struct {
 }
 
 type userExistenceResponse struct {
-	Exists bool `json:"Exists"`
+	Exists bool `json:"exists"`
 }
 
 type signUpResponse struct {
