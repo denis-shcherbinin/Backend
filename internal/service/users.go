@@ -151,6 +151,20 @@ func (u *UsersService) Profile(userID int) (entity.UserProfile, error) {
 	return userProfile, nil
 }
 
+func (u *UsersService) DeleteImage(userID int) error {
+	imageURL, err := u.repos.GetImageURL(userID)
+	if err != nil {
+		return err
+	}
+
+	err = u.storage.Delete(imageURL)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Logout deletes all active sessions the user with passer id.
 // It returns an error.
 func (u *UsersService) Logout(userID int) error {

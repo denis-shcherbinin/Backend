@@ -14,6 +14,7 @@ type Users interface {
 	GetProfileInfo(id int) ([]string, error)
 	GetSkills(id int) ([]entity.Skill, error)
 	GetJobs(id int) ([]entity.Job, error)
+	GetImageURL(id int) (string, error)
 
 	DeleteAllSessions(id int) error
 	DeleteAllAgentSessions(id int, userAgent string) error

@@ -175,6 +175,18 @@ func (u *UsersRepos) GetJobs(userID int) ([]entity.Job, error) {
 	return jobs, nil
 }
 
+func (u *UsersRepos) GetImageURL(id int) (string, error) {
+	query := fmt.Sprintf("SELECT image_url FROM %s WHERE id=$1", postgres.UsersTable)
+	row := u.db.QueryRow(query, id)
+
+	var imageURL string
+	if err := row.Scan(&imageURL); err != nil {
+		return "", err
+	}
+
+	return imageURL, nil
+}
+
 // DeleteAllSessions removes all user sessions from user sessions table with passed user id.
 // It returns the error.
 func (u *UsersRepos) DeleteAllSessions(id int) error {

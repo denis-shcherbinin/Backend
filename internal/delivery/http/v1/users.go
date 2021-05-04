@@ -18,7 +18,12 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 
 		authenticated := user.Group("/", h.userIdentify)
 		{
-			authenticated.GET("/profile", h.profile)
+			profile := authenticated.Group("/profile")
+			{
+				profile.GET("/", h.profile)
+				profile.DELETE("/image", h.deleteImage)
+			}
+
 			authenticated.GET("/logout", h.logout)
 			authenticated.GET("/sign-out", h.signOut)
 		}
@@ -173,6 +178,22 @@ func (h *Handler) profile(c *gin.Context) {
 	c.JSON(http.StatusOK, userProfileResponse{
 		Profile: profile,
 	})
+}
+
+func (h *Handler) deleteImage(c *gin.Context) {
+	userID, err := h.getUserID(c)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.services.Users.DeleteImage(userID)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 // @Summary User logout
