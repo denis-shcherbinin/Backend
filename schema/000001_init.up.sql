@@ -77,7 +77,6 @@ CREATE TABLE "vacancies_spheres"
 );
 /**/
 
-
 /*Resumes relations*/
 CREATE TABLE "resumes"
 (
@@ -161,8 +160,8 @@ CREATE TABLE "users_skills"
 CREATE TABLE "users_profiles"
 (
     "id"         SERIAL PRIMARY KEY,
-    "user_id"    int REFERENCES "users" ("id") on DELETE CASCADE unique,
-    "profile_id" int REFERENCES "profiles" ("id") on DELETE CASCADE unique
+    "user_id"    int REFERENCES "users" ("id") on DELETE CASCADE UNIQUE,
+    "profile_id" int REFERENCES "profiles" ("id") on DELETE CASCADE UNIQUE
 );
 
 CREATE TABLE "users_jobs"

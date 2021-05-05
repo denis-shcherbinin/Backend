@@ -36,6 +36,7 @@ func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []
 		return 0, errors.New("user already exists")
 	}
 
+	// User spheres
 	for _, sphere := range spheres {
 		query = fmt.Sprintf("INSERT INTO %s (user_id, sphere_id) VALUES ($1, $2)", postgres.UsersSpheresTable)
 		_, err := u.db.Exec(query, userID, sphere.ID)
@@ -45,6 +46,7 @@ func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []
 		}
 	}
 
+	// User skills
 	for _, skill := range skills {
 		query = fmt.Sprintf("INSERT INTO %s (user_id, skill_id) VALUES ($1, $2)", postgres.UsersSkillsTable)
 		_, err := u.db.Exec(query, userID, skill.ID)
@@ -52,6 +54,20 @@ func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []
 			logrus.Error(err)
 			continue
 		}
+	}
+
+	// Profile create
+	var profileID int
+	query = fmt.Sprintf("INSERT INTO %s DEFAULT VALUES RETURNING id", postgres.ProfilesTable)
+	row = u.db.QueryRow(query)
+	if err := row.Scan(&profileID); err != nil {
+		return userID, err
+	}
+
+	query = fmt.Sprintf("INSERT INTO %s (user_id, profile_id) VALUES ($1, $2)", postgres.UsersProfilesTable)
+	_, err := u.db.Exec(query, userID, profileID)
+	if err != nil {
+		return userID, err
 	}
 
 	return userID, nil

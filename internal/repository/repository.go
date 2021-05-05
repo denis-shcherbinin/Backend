@@ -19,7 +19,6 @@ type Users interface {
 
 	DeleteAllSessions(id int) error
 	DeleteAllAgentSessions(id int, userAgent string) error
-
 	CreateSession(id int, session entity.Session) error
 	UpdateSession(id int, refreshToken string, session entity.Session) error
 
