@@ -187,6 +187,16 @@ func (u *UsersRepos) GetImageURL(id int) (string, error) {
 	return imageURL, nil
 }
 
+func (u *UsersRepos) DeleteImage(id int) error {
+	query := fmt.Sprintf("UPDATE %s SET image_url=$1 WHERE id=$2", postgres.UsersTable)
+	_, err := u.db.Exec(query, "", id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // DeleteAllSessions removes all user sessions from user sessions table with passed user id.
 // It returns the error.
 func (u *UsersRepos) DeleteAllSessions(id int) error {

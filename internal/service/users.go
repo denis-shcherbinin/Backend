@@ -157,8 +157,11 @@ func (u *UsersService) DeleteImage(userID int) error {
 		return err
 	}
 
-	err = u.storage.Delete(imageURL)
-	if err != nil {
+	if err = u.storage.Delete(imageURL); err != nil {
+		return err
+	}
+
+	if err = u.repos.DeleteImage(userID); err != nil {
 		return err
 	}
 
