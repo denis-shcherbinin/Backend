@@ -16,6 +16,7 @@ type Users interface {
 	GetJobs(id int) ([]entity.Job, error)
 	GetImageURL(id int) (string, error)
 	DeleteImage(id int) error
+	UpdateProfile(id int, imageURL string, input entity.ProfileInput) error
 
 	DeleteAllSessions(id int) error
 	DeleteAllAgentSessions(id int, userAgent string) error

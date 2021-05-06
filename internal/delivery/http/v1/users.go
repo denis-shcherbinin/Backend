@@ -21,6 +21,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 			profile := authenticated.Group("/profile")
 			{
 				profile.GET("/", h.profile)
+				profile.PUT("/", h.profileEdit)
 				profile.DELETE("/image", h.deleteImage)
 			}
 
@@ -178,6 +179,50 @@ func (h *Handler) profile(c *gin.Context) {
 	c.JSON(http.StatusOK, userProfileResponse{
 		Profile: profile,
 	})
+}
+
+// @Summary User profile
+// @Security UserAuth
+// @Tags User
+// @Description User profile edit
+// @ModuleID profileEdit
+// @Accept mpfd
+// @Produce json
+// @Param file formData file true "Image [jpeg/png]"
+// @Param profile formData string true "Look at the profileInputStringTemplate or entity.ProfileInput in Models"
+// @Param profileInputStringTemplate body entity.ProfileInput false "Profile edit template"
+// @Success 200 {string} ok
+// @Failure 400,404 {object} response
+// @Failure 500 {object} response
+// @Failure default {object} response
+// @Router /user/profile [put]
+func (h *Handler) profileEdit(c *gin.Context) {
+	userID, err := h.getUserID(c)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	fileBody, fileType, err := h.getImageFromMultipartFormData(c)
+	if err != nil {
+		if err.Error() != "http: no such file" {
+			newResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
+	}
+
+	profileInput, err := h.getProfileInputFromMultipartFormData(c)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = h.services.Users.UpdateProfile(userID, profileInput, fileBody, fileType); err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func (h *Handler) deleteImage(c *gin.Context) {

@@ -40,4 +40,19 @@ type (
 	SpheresInput struct {
 		Spheres []Sphere `json:"spheres" binding:"required"`
 	}
+
+	ProfileInput struct {
+		FirstName  string  `json:"firstName" binding:"required"`
+		LastName   string  `json:"lastName" binding:"required"`
+		Email      string  `json:"email" binding:"required"`
+		BirthDate  string  `json:"birthDate" binding:"required"`
+		Comment    string  `json:"comment" binding:"required"`
+		Experience string  `json:"experience" binding:"required"`
+		SkillLevel string  `json:"skillLevel" binding:"required"`
+		MinSalary  string  `json:"minSalary" binding:"required"`
+		MaxSalary  string  `json:"maxSalary" binding:"required"`
+		About      string  `json:"about" binding:"required"`
+		Skills     []Skill `json:"skills" binding:"required"`
+		Jobs       []Job   `json:"jobs" binding:"required"`
+	}
 )
