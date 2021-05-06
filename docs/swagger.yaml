@@ -587,6 +587,39 @@ paths:
       summary: User profile
       tags:
       - User
+  /user/profile/image:
+    delete:
+      consumes:
+      - application/json
+      description: user profile image delete
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: User profile
+      tags:
+      - User
   /user/sign-out:
     get:
       consumes:

@@ -225,6 +225,18 @@ func (h *Handler) profileEdit(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// @Summary User profile
+// @Security UserAuth
+// @Tags User
+// @Description user profile image delete
+// @ModuleID deleteImage
+// @Accept json
+// @Produce json
+// @Success 200 {string} ok
+// @Failure 400,404 {object} response
+// @Failure 500 {object} response
+// @Failure default {object} response
+// @Router /user/profile/image [delete]
 func (h *Handler) deleteImage(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil {
