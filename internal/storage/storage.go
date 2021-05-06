@@ -68,6 +68,18 @@ func (s *Storage) Upload(input UploadInput) (string, error) {
 	return s.generateFileURL(fileName), nil
 }
 
+func (s *Storage) Delete(imageURL string) error {
+	fileName := imageURL[len(imageURL)-fileNameLength:]
+	input := &s3.DeleteObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(fileName),
+	}
+
+	_, err := s.client.DeleteObject(input)
+
+	return err
+}
+
 func (s *Storage) generateFileName() string {
 	b := make([]byte, fileNameLength)
 	for i := range b {

@@ -124,13 +124,38 @@ func (h *Handler) getUserSignUpInputFromMultipartFormData(c *gin.Context) (entit
 	return input, nil
 }
 
+func (h *Handler) getProfileInputFromMultipartFormData(c *gin.Context) (entity.ProfileInput, error) {
+	formValue := c.Request.PostFormValue("profile")
+
+	var input entity.ProfileInput
+
+	if len(input.FirstName) < 2 || len(input.FirstName) > 64 {
+		return input, errors.New("invalid firstName")
+	}
+
+	if len(input.LastName) < 2 || len(input.LastName) > 64 {
+		return input, errors.New("invalid lastName")
+	}
+
+	if len(input.BirthDate) != 10 {
+		return input, errors.New("invalid birthDate")
+	}
+
+	if len(input.Email) == 0 {
+		return input, errors.New("invalid email")
+	}
+  
+	return input, nil
+}
+
 func (h *Handler) getCompanyInputFromMultipartFormData(c *gin.Context) (entity.CompanyInput, error) {
 	formValue := c.Request.PostFormValue("company")
 
 	var input entity.CompanyInput
-	if err := json.Unmarshal([]byte(formValue), &input); err != nil {
+  
+  if err := json.Unmarshal([]byte(formValue), &input); err != nil {
 		return input, err
 	}
-
-	return input, nil
+  
+  return input, nil
 }

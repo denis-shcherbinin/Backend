@@ -36,6 +36,7 @@ func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []
 		return 0, errors.New("user already exists")
 	}
 
+	// User spheres
 	for _, sphere := range spheres {
 		query = fmt.Sprintf("INSERT INTO %s (user_id, sphere_id) VALUES ($1, $2)", postgres.UsersSpheresTable)
 		_, err := u.db.Exec(query, userID, sphere.ID)
@@ -45,6 +46,7 @@ func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []
 		}
 	}
 
+	// User skills
 	for _, skill := range skills {
 		query = fmt.Sprintf("INSERT INTO %s (user_id, skill_id) VALUES ($1, $2)", postgres.UsersSkillsTable)
 		_, err := u.db.Exec(query, userID, skill.ID)
@@ -52,6 +54,21 @@ func (u *UsersRepos) Create(user entity.User, spheres []entity.Sphere, skills []
 			logrus.Error(err)
 			continue
 		}
+	}
+
+	// Profile create
+	var profileID int
+	query = fmt.Sprintf("INSERT INTO %s (comment, experience, skill_level, min_salary, max_salary, about) "+
+		"VALUES ($1, $2, $3, $4, $5, $6) RETURNING id", postgres.ProfilesTable)
+	row = u.db.QueryRow(query, "", "", "", "", "", "")
+	if err := row.Scan(&profileID); err != nil {
+		return userID, err
+	}
+
+	query = fmt.Sprintf("INSERT INTO %s (user_id, profile_id) VALUES ($1, $2)", postgres.UsersProfilesTable)
+	_, err := u.db.Exec(query, userID, profileID)
+	if err != nil {
+		return userID, err
 	}
 
 	return userID, nil
@@ -173,6 +190,131 @@ func (u *UsersRepos) GetJobs(userID int) ([]entity.Job, error) {
 	}
 
 	return jobs, nil
+}
+
+func (u *UsersRepos) GetImageURL(id int) (string, error) {
+	query := fmt.Sprintf("SELECT image_url FROM %s WHERE id=$1", postgres.UsersTable)
+	row := u.db.QueryRow(query, id)
+
+	var imageURL string
+	if err := row.Scan(&imageURL); err != nil {
+		return "", err
+	}
+
+	return imageURL, nil
+}
+
+func (u *UsersRepos) DeleteImage(id int) error {
+	query := fmt.Sprintf("UPDATE %s SET image_url=$1 WHERE id=$2", postgres.UsersTable)
+	_, err := u.db.Exec(query, "", id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *UsersRepos) UpdateProfile(id int, imageURL string, input entity.ProfileInput) error {
+	tx, err := u.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	// Updating usersTable
+	query := fmt.Sprintf("UPDATE %s SET first_name=$1, last_name=$2, birth_date=$3, email=$4, image_url=$5 WHERE id=$6",
+		postgres.UsersTable)
+	_, err = tx.Exec(query, input.FirstName, input.LastName, input.BirthDate, input.Email, imageURL, id)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	// Updating usersSkillsTable
+	query = fmt.Sprintf("DELETE FROM %s WHERE user_id=$1", postgres.UsersSkillsTable)
+	_, err = tx.Exec(query, id)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	for _, skill := range input.Skills {
+		query = fmt.Sprintf("INSERT INTO %s (user_id, skill_id) VALUES ($1, $2)", postgres.UsersSkillsTable)
+		_, err = u.db.Exec(query, id, skill.ID)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+	}
+
+	// Updating usersJobsTable
+	var jobsID []int
+	query = fmt.Sprintf("SELECT job_id FROM %s WHERE user_id=$1", postgres.UsersJobsTable)
+	rows, err := tx.Query(query, id)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	for rows.Next() {
+		var jobID int
+		if err = rows.Scan(&jobID); err != nil {
+			logrus.Error(err)
+			continue
+		}
+		jobsID = append(jobsID, jobID)
+	}
+	for _, jobID := range jobsID {
+		query = fmt.Sprintf("DELETE FROM %s WHERE id=$1", postgres.JobsTable)
+		_, err = tx.Exec(query, jobID)
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+
+	for _, job := range input.Jobs {
+		var jobID int
+		query = fmt.Sprintf("INSERT INTO %s (company_name, position, \"from\", \"to\", responsibilities) "+
+			"VALUES ($1, $2, $3, $4, $5) RETURNING id", postgres.JobsTable)
+		row := tx.QueryRow(query, job.CompanyName, job.Position, job.WorkFrom, job.WorkTo, job.Responsibilities)
+		if err = row.Scan(&jobID); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+
+		for _, skill := range job.Skills {
+			query = fmt.Sprintf("INSERT INTO %s (job_id, skill_id) VALUES ($1, $2)", postgres.JobsTable)
+			_, err = tx.Exec(query, jobID, skill.ID)
+			if err != nil {
+				_ = tx.Rollback()
+				return err
+			}
+		}
+
+		query = fmt.Sprintf("INSERT INTO %s (user_id, job_id) VALUES ($1, $2)", postgres.UsersJobsTable)
+		_, err = tx.Exec(query, id, jobID)
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+
+	// Updating profilesTable
+	var profileID int
+	query = fmt.Sprintf("SELECT profile_id FROM %s WHERE user_id=$1", postgres.UsersProfilesTable)
+	row := tx.QueryRow(query, id)
+	if err = row.Scan(&profileID); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	query = fmt.Sprintf("UPDATE %s SET comment=$1, experience=$2, skill_level=$3, min_salary=$4, max_salary=$5, "+
+		"about=$6 WHERE id=$7", postgres.ProfilesTable)
+	_, err = tx.Exec(query, input.Comment, input.Experience, input.SkillLevel, input.MinSalary, input.MaxSalary, input.About, profileID)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }
 
 // DeleteAllSessions removes all user sessions from user sessions table with passed user id.

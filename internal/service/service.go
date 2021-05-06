@@ -15,6 +15,8 @@ type Users interface {
 	RefreshTokens(input entity.UserRefreshInput, userAgent string) (Tokens, error)
 
 	Profile(userID int) (entity.UserProfile, error)
+	UpdateProfile(userID int, input entity.ProfileInput, fileBody, fileType string) error
+	DeleteImage(userID int) error
 	Logout(userID int) error
 	SignOut(userID int, userAgent string) error
 
