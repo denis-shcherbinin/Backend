@@ -17,6 +17,50 @@ definitions:
       workTo:
         type: string
     type: object
+  entity.ProfileInput:
+    properties:
+      about:
+        type: string
+      birthDate:
+        type: string
+      comment:
+        type: string
+      email:
+        type: string
+      experience:
+        type: string
+      firstName:
+        type: string
+      jobs:
+        items:
+          $ref: '#/definitions/entity.Job'
+        type: array
+      lastName:
+        type: string
+      maxSalary:
+        type: string
+      minSalary:
+        type: string
+      skillLevel:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/entity.Skill'
+        type: array
+    required:
+    - about
+    - birthDate
+    - comment
+    - email
+    - experience
+    - firstName
+    - jobs
+    - lastName
+    - maxSalary
+    - minSalary
+    - skillLevel
+    - skills
+    type: object
   entity.Skill:
     properties:
       id:
@@ -164,7 +208,7 @@ definitions:
     type: object
   v1.userExistenceResponse:
     properties:
-      Exists:
+      exists:
         type: boolean
     type: object
   v1.userProfileResponse:
@@ -473,6 +517,88 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/v1.userProfileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: User profile
+      tags:
+      - User
+    put:
+      consumes:
+      - multipart/form-data
+      description: User profile edit
+      parameters:
+      - description: Image [jpeg/png]
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Look at the profileInputStringTemplate or entity.ProfileInput
+          in Models
+        in: formData
+        name: profile
+        required: true
+        type: string
+      - description: Profile edit template
+        in: body
+        name: profileInputStringTemplate
+        schema:
+          $ref: '#/definitions/entity.ProfileInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: User profile
+      tags:
+      - User
+  /user/profile/image:
+    delete:
+      consumes:
+      - application/json
+      description: user profile image delete
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
         "400":
           description: Bad Request
           schema:

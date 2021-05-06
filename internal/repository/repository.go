@@ -14,10 +14,12 @@ type Users interface {
 	GetProfileInfo(id int) ([]string, error)
 	GetSkills(id int) ([]entity.Skill, error)
 	GetJobs(id int) ([]entity.Job, error)
+	GetImageURL(id int) (string, error)
+	DeleteImage(id int) error
+	UpdateProfile(id int, imageURL string, input entity.ProfileInput) error
 
 	DeleteAllSessions(id int) error
 	DeleteAllAgentSessions(id int, userAgent string) error
-
 	CreateSession(id int, session entity.Session) error
 	UpdateSession(id int, refreshToken string, session entity.Session) error
 
