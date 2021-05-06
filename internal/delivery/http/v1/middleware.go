@@ -101,7 +101,7 @@ func (h *Handler) getUserSignUpInputFromMultipartFormData(c *gin.Context) (entit
 		return input, err
 	}
 
-	if len(input.FirstName) < 2 || len(input.FirstName) > 64{
+	if len(input.FirstName) < 2 || len(input.FirstName) > 64 {
 		return input, errors.New("invalid firstName")
 	}
 
@@ -119,6 +119,17 @@ func (h *Handler) getUserSignUpInputFromMultipartFormData(c *gin.Context) (entit
 
 	if len(input.Password) < 8 {
 		return input, errors.New("invalid password")
+	}
+
+	return input, nil
+}
+
+func (h *Handler) getCompanyInputFromMultipartFormData(c *gin.Context) (entity.CompanyInput, error) {
+	formValue := c.Request.PostFormValue("company")
+
+	var input entity.CompanyInput
+	if err := json.Unmarshal([]byte(formValue), &input); err != nil {
+		return input, err
 	}
 
 	return input, nil

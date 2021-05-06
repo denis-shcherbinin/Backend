@@ -1,5 +1,27 @@
 basePath: /api/v1/
 definitions:
+  entity.CompanyInput:
+    properties:
+      foundationDate:
+        type: string
+      fullDescription:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      numberOfEmployees:
+        type: integer
+      shortDescription:
+        type: string
+    required:
+    - foundationDate
+    - fullDescription
+    - location
+    - name
+    - numberOfEmployees
+    - shortDescription
+    type: object
   entity.Job:
     properties:
       companyName:
@@ -129,6 +151,11 @@ definitions:
     - skills
     - spheres
     type: object
+  v1.companyCreateResponse:
+    properties:
+      companyID:
+        type: integer
+    type: object
   v1.response:
     properties:
       message:
@@ -164,7 +191,7 @@ definitions:
     type: object
   v1.userExistenceResponse:
     properties:
-      Exists:
+      exists:
         type: boolean
     type: object
   v1.userProfileResponse:
@@ -179,6 +206,55 @@ info:
   title: Network API
   version: "1.0"
 paths:
+  /company/create:
+    post:
+      consumes:
+      - multipart/form-data
+      description: company creation
+      parameters:
+      - description: Image [jpeg/png]
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Look at the companyStringTemplate or entity.CompanyInput in Models
+        in: formData
+        name: company
+        required: true
+        type: string
+      - description: Company creation template
+        in: body
+        name: companyStringTemplate
+        schema:
+          $ref: '#/definitions/entity.CompanyInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.companyCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: Company Creation
+      tags:
+      - Company
   /skills/all:
     get:
       description: Get all skills

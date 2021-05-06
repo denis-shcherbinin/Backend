@@ -30,11 +30,16 @@ type Skills interface {
 	GetAll() ([]entity.Skill, error)
 }
 
+type Companies interface {
+	Create(userID int, input entity.CompanyInput, fileBody, fileType string) (int, error)
+}
+
 type Services struct {
-	Users   Users
-	Spheres Spheres
-	Skills  Skills
-	Storage *storage.Storage
+	Users     Users
+	Spheres   Spheres
+	Skills    Skills
+	Storage   *storage.Storage
+	Companies Companies
 }
 
 type Deps struct {
@@ -50,11 +55,13 @@ func NewServices(deps Deps) *Services {
 	usersService := NewUsersService(deps.Repos.Users, deps.Storage, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 	spheresService := NewSpheresService(deps.Repos.Spheres)
 	skillsService := NewSkillsService(deps.Repos.Skills)
+	companiesService := NewCompaniesService(deps.Repos.Companies, deps.Storage)
 
 	return &Services{
-		Users:   usersService,
-		Spheres: spheresService,
-		Skills:  skillsService,
-		Storage: deps.Storage,
+		Users:     usersService,
+		Spheres:   spheresService,
+		Skills:    skillsService,
+		Storage:   deps.Storage,
+		Companies: companiesService,
 	}
 }

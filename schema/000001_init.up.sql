@@ -107,10 +107,14 @@ CREATE TABLE "resumes_spheres"
 /*Companies relations*/
 CREATE TABLE "companies"
 (
-    "id"          SERIAL PRIMARY KEY,
-    "name"        varchar(256),
-    "description" varchar(256),
-    "address"     varchar(256)
+    "id"                  SERIAL PRIMARY KEY,
+    "name"                varchar(256),
+    "location"            varchar(256),
+    "foundation_date"     varchar(256),
+    "number_of_employees" varchar(256),
+    "short_description"   varchar(256),
+    "full_description"    varchar(512),
+    "image_url"           varchar(256)
 );
 
 CREATE TABLE "companies_vacancies"
