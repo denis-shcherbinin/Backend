@@ -24,6 +24,82 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/company/create": {
+            "post": {
+                "security": [
+                    {
+                        "UserAuth": []
+                    }
+                ],
+                "description": "company creation",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Company Creation",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image [jpeg/png]",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Look at the companyStringTemplate or entity.CompanyInput in Models",
+                        "name": "company",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "description": "Company creation template",
+                        "name": "companyStringTemplate",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.CompanyInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/v1.companyCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    }
+                }
+            }
+        },
         "/skills/all": {
             "get": {
                 "description": "Get all skills",
@@ -687,6 +763,37 @@ var doc = `{
         }
     },
     "definitions": {
+        "entity.CompanyInput": {
+            "type": "object",
+            "required": [
+                "foundationDate",
+                "fullDescription",
+                "location",
+                "name",
+                "numberOfEmployees",
+                "shortDescription"
+            ],
+            "properties": {
+                "foundationDate": {
+                    "type": "string"
+                },
+                "fullDescription": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "numberOfEmployees": {
+                    "type": "integer"
+                },
+                "shortDescription": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.Job": {
             "type": "object",
             "properties": {
@@ -939,6 +1046,14 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/entity.Sphere"
                     }
+                }
+            }
+        },
+        "v1.companyCreateResponse": {
+            "type": "object",
+            "properties": {
+                "companyID": {
+                    "type": "integer"
                 }
             }
         },

@@ -41,6 +41,15 @@ type (
 		Spheres []Sphere `json:"spheres" binding:"required"`
 	}
 
+	CompanyInput struct {
+		Name              string `json:"name" binding:"required"`
+		Location          string `json:"location" binding:"required"`
+		FoundationDate    string `json:"foundationDate" binding:"required"`
+		NumberOfEmployees int    `json:"numberOfEmployees" binding:"required"`
+		ShortDescription  string `json:"shortDescription" binding:"required"`
+		FullDescription   string `json:"fullDescription" binding:"required"`
+  }
+  
 	ProfileInput struct {
 		FirstName  string  `json:"firstName" binding:"required"`
 		LastName   string  `json:"lastName" binding:"required"`

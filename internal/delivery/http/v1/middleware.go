@@ -128,9 +128,6 @@ func (h *Handler) getProfileInputFromMultipartFormData(c *gin.Context) (entity.P
 	formValue := c.Request.PostFormValue("profile")
 
 	var input entity.ProfileInput
-	if err := json.Unmarshal([]byte(formValue), &input); err != nil {
-		return input, err
-	}
 
 	if len(input.FirstName) < 2 || len(input.FirstName) > 64 {
 		return input, errors.New("invalid firstName")
@@ -147,6 +144,18 @@ func (h *Handler) getProfileInputFromMultipartFormData(c *gin.Context) (entity.P
 	if len(input.Email) == 0 {
 		return input, errors.New("invalid email")
 	}
-
+  
 	return input, nil
+}
+
+func (h *Handler) getCompanyInputFromMultipartFormData(c *gin.Context) (entity.CompanyInput, error) {
+	formValue := c.Request.PostFormValue("company")
+
+	var input entity.CompanyInput
+  
+  if err := json.Unmarshal([]byte(formValue), &input); err != nil {
+		return input, err
+	}
+  
+  return input, nil
 }

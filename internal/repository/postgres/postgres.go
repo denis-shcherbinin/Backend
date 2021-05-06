@@ -13,12 +13,14 @@ const (
 	UsersSkillsTable       = "users_skills"
 	UsersProfilesTable     = "users_profiles"
 	UsersJobsTable         = "users_jobs"
+	UsersCompaniesTable    = "users_companies"
 	ProfilesTable          = "profiles"
 	JobsTable              = "jobs"
 	JobsSkillsTable        = "jobs_skills"
 	SkillsTable            = "skills"
 	SpheresTable           = "spheres"
 	SpheresSkillsTable     = "spheres_skills"
+	CompaniesTable         = "companies"
 	UsersMaxSessionsAmount = 5
 )
 
