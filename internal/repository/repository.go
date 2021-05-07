@@ -37,6 +37,7 @@ type Skills interface {
 
 type Companies interface {
 	Create(userID int, company entity.Company) (int, error)
+	Profile(userID int) (entity.CompanyProfile, error)
 }
 
 type Repositories struct {

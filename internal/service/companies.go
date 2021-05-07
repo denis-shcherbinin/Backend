@@ -30,12 +30,14 @@ func (c *CompaniesService) Create(userID int, input entity.CompanyInput, fileBod
 	company := entity.Company{
 		Name:              input.Name,
 		Location:          input.Location,
-		FoundationDate:    input.FoundationDate,
-		NumberOfEmployees: input.NumberOfEmployees,
 		ShortDescription:  input.ShortDescription,
 		FullDescription:   input.FullDescription,
 		ImageURL:          imageURL,
 	}
 
 	return c.repos.Create(userID, company)
+}
+
+func (c *CompaniesService) Profile(userID int) (entity.CompanyProfile, error) {
+	return c.repos.Profile(userID)
 }

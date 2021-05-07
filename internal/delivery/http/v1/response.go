@@ -40,6 +40,10 @@ type companyCreateResponse struct {
 	CompanyID int `json:"companyID"`
 }
 
+type companyProfileResponse struct {
+	CompanyProfile entity.CompanyProfile `json:"companyProfile"`
+}
+
 func newResponse(c *gin.Context, statusCode int, message string) {
 	logrus.Error(message)
 	c.AbortWithStatusJSON(statusCode, response{

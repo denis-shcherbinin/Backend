@@ -1,26 +1,50 @@
 basePath: /api/v1/
 definitions:
+  entity.Company:
+    properties:
+      fullDescription:
+        type: string
+      id:
+        type: integer
+      imageURL:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      shortDescription:
+        type: string
+    required:
+    - fullDescription
+    - imageURL
+    - location
+    - name
+    - shortDescription
+    type: object
   entity.CompanyInput:
     properties:
-      foundationDate:
-        type: string
       fullDescription:
         type: string
       location:
         type: string
       name:
         type: string
-      numberOfEmployees:
-        type: integer
       shortDescription:
         type: string
     required:
-    - foundationDate
     - fullDescription
     - location
     - name
-    - numberOfEmployees
     - shortDescription
+    type: object
+  entity.CompanyProfile:
+    properties:
+      company:
+        $ref: '#/definitions/entity.Company'
+      vacancies:
+        items:
+          $ref: '#/definitions/entity.Vacancy'
+        type: array
     type: object
   entity.Job:
     properties:
@@ -195,10 +219,69 @@ definitions:
     - skills
     - spheres
     type: object
+  entity.Vacancy:
+    properties:
+      conditions:
+        items:
+          $ref: '#/definitions/entity.VacancyCondition'
+        type: array
+      description:
+        type: string
+      id:
+        type: integer
+      isFullTime:
+        type: boolean
+      maxSalary:
+        type: string
+      minSalary:
+        type: string
+      position:
+        type: string
+      requirements:
+        items:
+          $ref: '#/definitions/entity.VacancyRequirement'
+        type: array
+      responsibilities:
+        items:
+          $ref: '#/definitions/entity.VacancyResponsibility'
+        type: array
+      skillLevel:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/entity.Skill'
+        type: array
+    type: object
+  entity.VacancyCondition:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  entity.VacancyRequirement:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  entity.VacancyResponsibility:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
   v1.companyCreateResponse:
     properties:
       companyID:
         type: integer
+    type: object
+  v1.companyProfileResponse:
+    properties:
+      companyProfile:
+        $ref: '#/definitions/entity.CompanyProfile'
     type: object
   v1.response:
     properties:
@@ -297,6 +380,39 @@ paths:
       security:
       - UserAuth: []
       summary: Company Creation
+      tags:
+      - Company
+  /company/profile:
+    get:
+      consumes:
+      - application/json
+      description: company profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.companyProfileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: Company profile
       tags:
       - Company
   /skills/all:
