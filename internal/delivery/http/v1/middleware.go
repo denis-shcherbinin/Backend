@@ -163,3 +163,15 @@ func (h *Handler) getCompanyInputFromMultipartFormData(c *gin.Context) (entity.C
 
 	return input, nil
 }
+
+func (h *Handler) getCompanyProfileFromMultipartFormData(c *gin.Context) (entity.CompanyProfile, error) {
+	formValue := c.Request.PostFormValue("companyProfile")
+
+	var input entity.CompanyProfile
+
+	if err := json.Unmarshal([]byte(formValue), &input); err != nil {
+		return input, err
+	}
+
+	return input, nil
+}
