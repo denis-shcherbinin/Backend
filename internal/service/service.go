@@ -34,6 +34,7 @@ type Skills interface {
 
 type Companies interface {
 	Create(userID int, input entity.CompanyInput, fileBody, fileType string) (int, error)
+	Profile(userID int) (entity.CompanyProfile, error)
 }
 
 type Services struct {

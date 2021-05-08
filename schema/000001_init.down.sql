@@ -14,7 +14,9 @@ DROP TABLE "resumes";
 DROP TABLE "companies_vacancies";
 DROP TABLE "companies";
 
-DROP TABLE "vacancies_spheres";
+DROP TABLE "vacancies_responsibilities";
+DROP TABLE "vacancies_requirements";
+DROP TABLE "vacancies_conditions";
 DROP TABLE "vacancies_skills";
 DROP TABLE "vacancies";
 

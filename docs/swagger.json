@@ -85,6 +85,58 @@
                 }
             }
         },
+        "/company/profile": {
+            "get": {
+                "security": [
+                    {
+                        "UserAuth": []
+                    }
+                ],
+                "description": "company profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Company profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.companyProfileResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    }
+                }
+            }
+        },
         "/skills/all": {
             "get": {
                 "description": "Get all skills",
@@ -748,20 +800,45 @@
         }
     },
     "definitions": {
-        "entity.CompanyInput": {
+        "entity.Company": {
             "type": "object",
             "required": [
-                "foundationDate",
                 "fullDescription",
+                "imageURL",
                 "location",
                 "name",
-                "numberOfEmployees",
                 "shortDescription"
             ],
             "properties": {
-                "foundationDate": {
+                "fullDescription": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
+                "imageURL": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shortDescription": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.CompanyInput": {
+            "type": "object",
+            "required": [
+                "fullDescription",
+                "location",
+                "name",
+                "shortDescription"
+            ],
+            "properties": {
                 "fullDescription": {
                     "type": "string"
                 },
@@ -771,11 +848,22 @@
                 "name": {
                     "type": "string"
                 },
-                "numberOfEmployees": {
-                    "type": "integer"
-                },
                 "shortDescription": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.CompanyProfile": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "$ref": "#/definitions/entity.Company"
+                },
+                "vacancies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Vacancy"
+                    }
                 }
             }
         },
@@ -1034,11 +1122,102 @@
                 }
             }
         },
+        "entity.Vacancy": {
+            "type": "object",
+            "properties": {
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.VacancyCondition"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isFullTime": {
+                    "type": "boolean"
+                },
+                "maxSalary": {
+                    "type": "string"
+                },
+                "minSalary": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.VacancyRequirement"
+                    }
+                },
+                "responsibilities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.VacancyResponsibility"
+                    }
+                },
+                "skillLevel": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Skill"
+                    }
+                }
+            }
+        },
+        "entity.VacancyCondition": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.VacancyRequirement": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.VacancyResponsibility": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.companyCreateResponse": {
             "type": "object",
             "properties": {
                 "companyID": {
                     "type": "integer"
+                }
+            }
+        },
+        "v1.companyProfileResponse": {
+            "type": "object",
+            "properties": {
+                "companyProfile": {
+                    "$ref": "#/definitions/entity.CompanyProfile"
                 }
             }
         },

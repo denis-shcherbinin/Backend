@@ -54,12 +54,34 @@ CREATE TABLE "jobs_skills"
 /*Vacancies relations*/
 CREATE TABLE "vacancies"
 (
-    "id"                SERIAL PRIMARY KEY,
-    "position"          varchar(256),
-    "short_description" varchar(256),
-    "full_description"  varchar(512),
-    "requirements"      varchar(256),
-    "advantages"        varchar(256)
+    "id"           SERIAL PRIMARY KEY,
+    "position"     varchar(256),
+    "description"  varchar(512),
+    "is_full_time" boolean,
+    "min_salary"   varchar(256),
+    "max_salary"   varchar(256),
+    "skill_level"  varchar(256)
+);
+
+CREATE TABLE "vacancies_responsibilities"
+(
+    "id"          SERIAL PRIMARY KEY,
+    "name"        varchar(256),
+    "description" varchar(512)
+);
+
+CREATE TABLE "vacancies_requirements"
+(
+    "id"          SERIAL PRIMARY KEY,
+    "name"        varchar(256),
+    "description" varchar(512)
+);
+
+CREATE TABLE "vacancies_conditions"
+(
+    "id"          SERIAL PRIMARY KEY,
+    "name"        varchar(256),
+    "description" varchar(512)
 );
 
 CREATE TABLE "vacancies_skills"
@@ -67,13 +89,6 @@ CREATE TABLE "vacancies_skills"
     "id"         SERIAL PRIMARY KEY,
     "vacancy_id" int REFERENCES "vacancies" ("id") on DELETE CASCADE,
     "skill_id"   int REFERENCES "skills" ("id") on DELETE CASCADE
-);
-
-CREATE TABLE "vacancies_spheres"
-(
-    "id"         SERIAL PRIMARY KEY,
-    "sphere_id"  int REFERENCES "spheres" ("id") on DELETE CASCADE,
-    "vacancy_id" int REFERENCES "vacancies" ("id") on DELETE CASCADE
 );
 /**/
 
@@ -106,14 +121,12 @@ CREATE TABLE "resumes_spheres"
 /*Companies relations*/
 CREATE TABLE "companies"
 (
-    "id"                  SERIAL PRIMARY KEY,
-    "name"                varchar(256),
-    "location"            varchar(256),
-    "foundation_date"     varchar(256),
-    "number_of_employees" varchar(256),
-    "short_description"   varchar(256),
-    "full_description"    varchar(512),
-    "image_url"           varchar(256)
+    "id"                SERIAL PRIMARY KEY,
+    "name"              varchar(256),
+    "location"          varchar(256),
+    "short_description" varchar(256),
+    "full_description"  varchar(512),
+    "image_url"         varchar(256)
 );
 
 CREATE TABLE "companies_vacancies"

@@ -11,6 +11,7 @@ func (h *Handler) initCompaniesRoutes(api *gin.RouterGroup) {
 		authenticated := company.Group("/", h.userIdentify)
 		{
 			authenticated.POST("/create", h.createCompany)
+			authenticated.GET("/profile", h.companyProfile)
 		}
 	}
 }
@@ -57,5 +58,35 @@ func (h *Handler) createCompany(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, companyCreateResponse{
 		CompanyID: companyID,
+	})
+}
+
+// @Summary Company profile
+// @Security UserAuth
+// @Tags Company
+// @Description company profile
+// @ModuleID companyProfile
+// @Accept json
+// @Produce json
+// @Success 200 {object} companyProfileResponse
+// @Failure 400,404 {object} response
+// @Failure 500 {object} response
+// @Failure default {object} response
+// @Router /company/profile [get]
+func (h *Handler) companyProfile(c *gin.Context) {
+	userID, err := h.getUserID(c)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	companyProfile, err := h.services.Companies.Profile(userID)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, companyProfileResponse{
+		CompanyProfile: companyProfile,
 	})
 }
