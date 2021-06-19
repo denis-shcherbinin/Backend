@@ -35,6 +35,8 @@ type Skills interface {
 type Companies interface {
 	Create(userID int, input entity.CompanyInput, fileBody, fileType string) (int, error)
 	Profile(userID int) (entity.CompanyProfile, error)
+	UpdateProfile(userID int, companyProfile entity.CompanyProfile, fileBody, fileType string) error
+	DeleteImage(userID int) error
 }
 
 type Services struct {

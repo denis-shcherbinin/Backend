@@ -12,6 +12,7 @@ func (h *Handler) initCompaniesRoutes(api *gin.RouterGroup) {
 		{
 			authenticated.POST("/create", h.createCompany)
 			authenticated.GET("/profile", h.companyProfile)
+			authenticated.PUT("/profile", h.companyProfileEdit)
 		}
 	}
 }
@@ -89,4 +90,46 @@ func (h *Handler) companyProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, companyProfileResponse{
 		CompanyProfile: companyProfile,
 	})
+}
+
+// @Summary Company profile
+// @Security UserAuth
+// @Tags Company
+// @Description Company profile edit
+// @ModuleID companyProfileEdit
+// @Accept mpfd
+// @Produce json
+// @Param file formData file true "Image [jpeg/png]"
+// @Param companyProfile formData string true "Look at the companyProfileStringTemplate or entity.CompanyProfile in Models"
+// @Param companyProfileStringTemplate body entity.CompanyProfile false "Company profile edit template"
+// @Success 200 {string} ok
+// @Failure 400,404 {object} response
+// @Failure 500 {object} response
+// @Failure default {object} response
+// @Router /company/profile [put]
+func (h *Handler) companyProfileEdit(c *gin.Context) {
+	userID, err := h.getUserID(c)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	fileBody, fileType, err := h.getImageFromMultipartFormData(c)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	companyProfile, err := h.getCompanyProfileFromMultipartFormData(c)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = h.services.Companies.UpdateProfile(userID, companyProfile, fileBody, fileType); err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

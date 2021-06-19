@@ -227,8 +227,6 @@ definitions:
         type: array
       description:
         type: string
-      id:
-        type: integer
       isFullTime:
         type: boolean
       maxSalary:
@@ -394,6 +392,55 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/v1.companyProfileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.response'
+      security:
+      - UserAuth: []
+      summary: Company profile
+      tags:
+      - Company
+    put:
+      consumes:
+      - multipart/form-data
+      description: Company profile edit
+      parameters:
+      - description: Image [jpeg/png]
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Look at the companyProfileStringTemplate or entity.CompanyProfile
+          in Models
+        in: formData
+        name: companyProfile
+        required: true
+        type: string
+      - description: Company profile edit template
+        in: body
+        name: companyProfileStringTemplate
+        schema:
+          $ref: '#/definitions/entity.CompanyProfile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
         "400":
           description: Bad Request
           schema:

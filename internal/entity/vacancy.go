@@ -1,7 +1,7 @@
 package entity
 
 type Vacancy struct {
-	ID               int                     `json:"id"`
+	ID               int                     `json:"-"`
 	Position         string                  `json:"position"`
 	Description      string                  `json:"description"`
 	IsFullTime       bool                    `json:"isFullTime"`

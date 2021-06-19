@@ -38,6 +38,10 @@ type Skills interface {
 type Companies interface {
 	Create(userID int, company entity.Company) (int, error)
 	Profile(userID int) (entity.CompanyProfile, error)
+	GetIDByUserID(userID int) (int, error)
+	UpdateProfile(companyProfile entity.CompanyProfile) error
+	GetImageURL(companyID int) (string, error)
+	DeleteImage(companyID int) error
 }
 
 type Repositories struct {

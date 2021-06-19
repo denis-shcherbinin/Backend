@@ -150,6 +150,80 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "security": [
+                    {
+                        "UserAuth": []
+                    }
+                ],
+                "description": "Company profile edit",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Company profile",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image [jpeg/png]",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Look at the companyProfileStringTemplate or entity.CompanyProfile in Models",
+                        "name": "companyProfile",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "description": "Company profile edit template",
+                        "name": "companyProfileStringTemplate",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.CompanyProfile"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/v1.response"
+                        }
+                    }
+                }
             }
         },
         "/skills/all": {
@@ -1148,9 +1222,6 @@ var doc = `{
                 },
                 "description": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "isFullTime": {
                     "type": "boolean"

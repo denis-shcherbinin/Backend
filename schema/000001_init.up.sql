@@ -15,6 +15,27 @@ CREATE TABLE "profiles"
     "about"       varchar(512)
 );
 
+CREATE TABLE "responsibilities"
+(
+    "id"          SERIAL PRIMARY KEY,
+    "name"        varchar(256),
+    "description" varchar(512)
+);
+
+CREATE TABLE "requirements"
+(
+    "id"          SERIAL PRIMARY KEY,
+    "name"        varchar(256),
+    "description" varchar(512)
+);
+
+CREATE TABLE "conditions"
+(
+    "id"          SERIAL PRIMARY KEY,
+    "name"        varchar(256),
+    "description" varchar(512)
+);
+
 /*Spheres relations*/
 CREATE TABLE "spheres"
 (
@@ -65,23 +86,23 @@ CREATE TABLE "vacancies"
 
 CREATE TABLE "vacancies_responsibilities"
 (
-    "id"          SERIAL PRIMARY KEY,
-    "name"        varchar(256),
-    "description" varchar(512)
+    "id"                SERIAL PRIMARY KEY,
+    "vacancy_id"        int REFERENCES "vacancies" ("id") ON DELETE CASCADE,
+    "responsibility_id" int REFERENCES "responsibilities" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "vacancies_requirements"
 (
-    "id"          SERIAL PRIMARY KEY,
-    "name"        varchar(256),
-    "description" varchar(512)
+    "id"             SERIAL PRIMARY KEY,
+    "vacancy_id"     int REFERENCES "vacancies" ("id") ON DELETE CASCADE,
+    "requirement_id" int REFERENCES "requirements" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "vacancies_conditions"
 (
-    "id"          SERIAL PRIMARY KEY,
-    "name"        varchar(256),
-    "description" varchar(512)
+    "id"           SERIAL PRIMARY KEY,
+    "vacancy_id"   int REFERENCES "vacancies" ("id") ON DELETE CASCADE,
+    "condition_id" int REFERENCES "conditions" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "vacancies_skills"
